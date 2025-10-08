@@ -6,8 +6,8 @@ import { AuthProvider } from "react-oidc-context";
 import { CartProvider } from "./components/context/CartContext";
 
 const cognitoAuthConfig = {
-  authority: "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_0WjoV9R47",
-  client_id: "1a4qii0kgoqusmr1ufbku7vjtv",
+  authority: "",
+  client_id: "",
   redirect_uri: "http://localhost:3000/home",
   logout_uri: "http://localhost:3000/logout-success",
   response_type: "code",
