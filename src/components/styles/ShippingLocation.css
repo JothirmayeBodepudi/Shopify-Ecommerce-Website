@@ -1,0 +1,87 @@
+/* ShippingLocation.css */
+.shipping-container {
+  font-family: Arial, sans-serif;
+  padding: 30px;
+  max-width: 800px;
+  margin: 20px auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.shipping-container h1 {
+  font-size: 2.2em;
+  color: #040435;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.shipping-container p {
+  font-size: 1.1em;
+  color: #555;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.shipping-container input {
+  padding: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.shipping-container button {
+  background-color: #040435;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.shipping-container button:hover {
+  background-color: #1e0a6d;
+}
+
+.availability-result {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.availability-result p {
+  font-size: 1.2em;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.availability-result b {
+  font-weight: bold;
+  color: #040435;
+}
+
+.availability-result h3 {
+  font-size: 1.5em;
+  color: #040435;
+  margin-bottom: 15px;
+}
+
+.availability-result ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  text-align: left;
+}
+
+.availability-result li {
+  font-size: 1.1em;
+  color: #555;
+  margin-bottom: 8px;
+}

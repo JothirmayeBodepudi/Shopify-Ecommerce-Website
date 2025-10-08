@@ -1,0 +1,77 @@
+.footer {
+  background-color: #040435; /* Dark navy like Wakefit */
+  color: #fff; /* Changed to white */
+  padding: 3rem 5%;
+  margin-top: 3rem;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+.footer-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ed7c0b; /* Accent color */
+  margin-bottom: 1rem;
+}
+
+.footer-col h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff; /* Changed to white */
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col ul li {
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  color: #fff; /* Changed to white */
+}
+
+.footer-col ul li:hover {
+  color: #ff6f61;
+}
+
+.footer-col p {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+  font-size: 0.9rem;
+  color: #fff; /* Changed to white */
+}
+
+/* Add this to change the link color */
+.footer-col ul li a {
+  color: #fff; /* Changed to white */
+  text-decoration: none; /* Optional: Remove underline */
+}
+
+/* Add this to change the link color on hover */
+.footer-col ul li a:hover {
+  color: #ff6f61;
+}
+
+.social-icons {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.social-icons a {
+  color: #fff;
+  font-size: 1.2rem;
+  transition: color 0.2s;
+}
+
+.social-icons a:hover {
+  color: #ff6f61;
+}

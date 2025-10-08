@@ -1,0 +1,86 @@
+/* ReturnsRefunds.css */
+.returns-container {
+  font-family: Arial, sans-serif;
+  padding: 30px;
+  max-width: 900px;
+  margin: 20px auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.returns-container h1 {
+  font-size: 2.5em;
+  color: #040435;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.returns-container h2 {
+  font-size: 1.8em;
+  color: #040435;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+}
+
+.returns-container p {
+  margin-bottom: 15px;
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #555;
+}
+
+.returns-container ul,
+.returns-container ol {
+  margin-bottom: 20px;
+  padding-left: 30px;
+}
+
+.returns-container li {
+  margin-bottom: 8px;
+  font-size: 1.1em;
+  color: #555;
+}
+
+.returns-container ol {
+  list-style-type: decimal;
+}
+
+.returns-container ul {
+  list-style-type: disc;
+}
+
+.returns-container a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.returns-container a:hover {
+  text-decoration: underline;
+}
+
+.returns-policy {
+  margin-bottom: 30px;
+}
+
+.eligible-items {
+  margin-bottom: 30px;
+}
+
+.return-process {
+  margin-bottom: 30px;
+}
+
+.refund-process {
+  margin-bottom: 30px;
+}
+
+.contact-information {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+}

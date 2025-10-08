@@ -1,0 +1,25 @@
+/* Question Block Styling */
+.question-block {
+  margin-bottom: 28px;
+  padding: 18px 20px;
+  border: 1px solid #e2e8f0; /* light gray border */
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.question-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.question-block h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: #2f3e46; /* deep natural tone */
+  line-height: 1.4;
+  border-left: 4px solid #52796f; /* subtle accent bar */
+  padding-left: 10px;
+}

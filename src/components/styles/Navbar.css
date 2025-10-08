@@ -1,0 +1,207 @@
+/* ======================== */
+/* Navbar glassy style       */
+/* ======================== */
+.navbar {
+  position: fixed;           /* stays on top while scrolling */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;              /* ✅ fixed height */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(62, 3, 180, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0 25px;           /* ✅ only horizontal padding */
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 2000;             /* navbar always above content */
+  box-sizing: border-box;    /* ✅ padding won't affect height */
+}
+
+/* Push page content down so it doesn’t hide behind navbar */
+body {
+  padding-top: 70px; /* ✅ matches navbar height */
+}
+
+/* ======================== */
+/* Left side                */
+/* ======================== */
+.nav-left {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-right: 25px;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+  height: 100%;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-weight: 600;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  height: 38px;  /* ✅ uniform button height */
+}
+
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ======================== */
+/* Right side               */
+/* ======================== */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  height: 100%;
+}
+
+/* ======================== */
+/* Search box               */
+/* ======================== */
+.search-box {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 25px;
+  padding: 4px 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  height: 38px;   /* ✅ consistent height */
+}
+
+.search-box input {
+  border: none;
+  padding: 0 10px;
+  outline: none;
+  background: transparent;
+  color: white;
+  font-size: 0.95rem;
+  height: 100%;  /* ✅ fills parent */
+  width: 160px;
+}
+
+.search-box input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-btn {
+  background: rgba(255, 165, 0, 0.9);
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  height: 100%;   /* ✅ consistent */
+}
+
+.search-btn:hover {
+  background: rgba(255, 140, 0, 1);
+}
+
+/* ======================== */
+/* Profile Dropdown         */
+/* ======================== */
+.dropdown {
+  position: relative;
+  height: 38px;  /* ✅ fixed size */
+}
+
+.dropdown-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 8px 12px;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  height: 100%;  /* ✅ consistent */
+}
+
+.dropdown-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  border-radius: 10px;
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.25);
+  min-width: 200px;
+  padding: 10px 0;
+  z-index: 3000;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* Dropdown items */
+.menu-item {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #2a0080;
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.menu-item:hover {
+  background: rgba(42, 0, 128, 0.08);
+  color: #000;
+}
+
+/* Logout Button */
+.dropdown-menu .logout-btn {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: left;
+  padding: 10px 15px;
+  transition: background 0.2s ease;
+}
+
+.dropdown-menu .logout-btn:hover {
+  background: rgba(255, 0, 0, 0.1);
+}
+
+/* Small fade animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

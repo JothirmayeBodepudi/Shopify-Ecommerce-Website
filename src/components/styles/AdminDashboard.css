@@ -1,0 +1,391 @@
+/* Add to AdminDashboard.css */
+.view-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.view-buttons-container .btn {
+  background-color: #6c757d; /* A neutral grey */
+  color: rgb(238, 230, 230);
+}
+
+.view-buttons-container .btn:hover {
+  background-color: #5a6268;
+}
+
+.data-display-area {
+  margin-top: 1.5rem;
+}
+
+.error-message {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+/* src/styles/AdminDashboard.css */
+
+/* --- Main Layout --- */
+.admin-dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f7f6; /* A light background for the page */
+}
+
+/* --- Sidebar Styles --- */
+.admin-sidebar {
+  width: 250px; /* Fixed width for the sidebar */
+  background-color: #2c3e50; /* A dark, modern sidebar color */
+  color: #ecf0f1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  flex-shrink: 0; /* Prevents the sidebar from shrinking */
+}
+
+.sidebar-header {
+  padding: 0 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Pushes the footer down */
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  padding: 15px 20px;
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-button:hover {
+  background-color: #34495e;
+}
+
+/* Style for the active button */
+.nav-button.active {
+  background-color: #3498db;
+  color: #f8f7f7;
+  font-weight: bold;
+}
+
+.sidebar-footer {
+  padding: 0 20px;
+}
+
+.logout-button {
+  width: 100%; /* Make logout button fill the space */
+}
+
+/* --- Main Content Styles --- */
+.admin-main-content {
+  flex-grow: 1; /* Takes up the remaining space */
+  padding: 30px;
+  overflow-y: auto; /* Allows scrolling if content is long */
+}
+
+/* --- Keep your existing card and button styles --- */
+.admin-card {
+  background-color: #f8f7f7;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.admin-card h2 {
+  margin-top: 0;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.view-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.data-display-area {
+  margin-top: 20px;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+/* Basic button style if you don't have one */
+.btn {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  background-color: #3498db;
+  color: rgb(36, 54, 102);
+  font-size: 1rem;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+}
+
+/* src/styles/AdminDashboard.css */
+
+/* Add these new styles to your existing file */
+
+/* --- Main Content Header --- */
+.main-content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.main-content-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+/* --- User Profile Display --- */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #9faa0b; /* A nice blue color */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.user-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111111;
+}
+
+/* Add or replace these styles in your AdminDashboard.css file */
+
+/* --- Responsive Table Container --- */
+.table-responsive {
+  overflow-x: auto;
+  border: 1px solid #5196db;
+  border-radius: 8px;
+  background-color: #928f8f;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #291717;
+}
+
+/* --- Table Header --- */
+.data-table thead tr {
+  background-color: #1a7de0;
+}
+
+.data-table th {
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  text-transform: capitalize;
+  font-size: 0.9rem;
+  color: #130369;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap; /* Prevent headers from wrapping */
+}
+
+/* --- Table Body --- */
+.data-table tbody tr {
+  border-bottom: 1px solid #dee2e6;
+  transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:last-of-type {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+.data-table td {
+  padding: 12px 15px;
+  vertical-align: middle; /* Vertically center cell content */
+  font-size: 0.95rem;
+  
+  /* --- (KEY FIX) For clean alignment --- */
+  white-space: nowrap;      /* Prevent text from wrapping to a new line */
+  overflow: hidden;         /* Hide any content that overflows the cell */
+  text-overflow: ellipsis;  /* Show '...' for truncated text */
+  max-width: 250px;         /* Trigger truncation for very long text */
+}
+
+/* Special styling for the checkbox column */
+.data-table td:first-child,
+.data-table th:first-child {
+  max-width: 40px;
+}
+
+/* --- Action Buttons in Table --- */
+.actions-cell {
+  width: 1%; /* Make column just wide enough for buttons */
+  max-width: none; /* Override the general max-width for td */
+  white-space: nowrap;
+  
+  /* --- (KEY FIX) Align buttons horizontally --- */
+  display: flex;
+  gap: 8px;
+}
+
+.actions-cell {
+  /* (FIX) Allow the cell to be as wide as its content */
+  width: auto; 
+  
+  /* (FIX) Ensure the buttons are never hidden or cut off */
+  overflow: visible; 
+  
+  /* Keep buttons side-by-side */
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit {
+    background-color: #04a01e;
+}
+
+.btn-delete {
+    background-color: #eb3731;
+}
+
+/* Keep responsive styles for mobile */
+@media screen and (max-width: 768px) {
+  /* ... your existing mobile styles ... */
+}
+
+/* --- Your existing styles below --- */
+/* ... (keep all the other styles from the previous answer) ... */
+
+/* --- Modal Styles --- */
+
+/* The full-screen background overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* The modal window itself */
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px; /* Adjust max-width as needed */
+
+  /* --- KEY FIX STARTS HERE --- */
+  max-height: 90vh; /* Set a max-height (90% of viewport height) */
+  display: flex;
+  flex-direction: column; /* Arrange children (header, body, footer) vertically */
+  overflow: hidden; /* Hide overflow on the main container */
+}
+
+/* The scrollable area for your form fields */
+.modal-body {
+  overflow-y: auto; /* Add vertical scrollbar ONLY when needed */
+  flex-grow: 1; /* Allow this area to grow and fill available space */
+  padding: 15px 5px; /* Add some padding for better spacing */
+}
+
+/* Optional styles for header and footer */
+.modal-header {
+  flex-shrink: 0; /* Prevent header from shrinking */
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 10px;
+}
+
+.modal-footer {
+  flex-shrink: 0; /* Prevent footer from shrinking */
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  text-align: right; /* Align buttons to the right */
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+/* The main modal window */
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 550px; /* Or your preferred max-width */
+
+  /* --- Key Fix for Scrolling --- */
+  max-height: 90vh; /* 1. Set a max height (e.g., 90% of the viewport height) */
+  display: flex; /* 2. Use flexbox for layout */
+  flex-direction: column; /* 3. Arrange header, body, and footer vertically */
+}
+
+/* The area containing your form that will scroll */
+.modal-body {
+  overflow-y: auto; /* 4. Add a vertical scrollbar ONLY when content overflows */
+  flex-grow: 1;     /* 5. Allow this area to fill the available space */
+  padding: 15px 5px; /* Adds some nice spacing around your form */
+}
+
+/* (Optional but Recommended) Styles for a fixed header and footer */
+.modal-header, .modal-footer {
+  flex-shrink: 0; /* Prevents the header and footer from shrinking */
+}
+
+.modal-header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.modal-footer {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

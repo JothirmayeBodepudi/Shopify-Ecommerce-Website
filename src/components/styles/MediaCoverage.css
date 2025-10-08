@@ -1,0 +1,181 @@
+/* MediaCoverage.css */
+.media-coverage-container {
+  font-family: 'Arial', sans-serif;
+  padding: 30px;
+  max-width: 900px;
+  margin: 20px auto;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.media-coverage-container h1 {
+  font-size: 2.2em;
+  color: #040435;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.media-coverage-container .coverage-description {
+  font-size: 1.1em;
+  color: #555;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.media-coverage-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.media-coverage-container li {
+  margin-bottom: 15px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.media-coverage-container li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.media-coverage-container a {
+  color: #4682B4;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.media-coverage-container a:hover {
+  color: #36648B;
+  text-decoration: underline;
+}
+.admin-section {
+  margin-top: 40px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.login-form, .add-video-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-form input, .add-video-form input {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.login-form button, .add-video-form button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-form button:hover, .add-video-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Existing styles ... */
+
+.coverage-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* --- Admin Action Buttons (Edit/Delete) --- */
+.admin-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.admin-actions button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+}
+
+.edit-btn {
+  background-color: #ffc107; /* Yellow */
+}
+
+.delete-btn {
+  background-color: #dc3545; /* Red */
+}
+
+/* --- Inline Edit Form --- */
+.edit-form {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.edit-form input {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.edit-form button {
+  padding: 8px 12px;
+}
+
+/* --- Logout Button --- */
+.logout-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px;
+  background-color: #6c757d; /* Gray */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #5a6268;
+}
+
+/* General button styling for admin section */
+.admin-section button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.admin-section button:hover {
+  background-color: #0056b3;
+}
+
+/* Cancel button style */
+.login-form button[type="button"],
+.edit-form button[type="button"] {
+  background-color: #6c757d;
+}
+
+.login-form button[type="button"]:hover,
+.edit-form button[type="button"]:hover {
+  background-color: #5a6268;
+}

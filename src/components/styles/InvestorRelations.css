@@ -1,0 +1,78 @@
+/* InvestorRelations.css */
+.investor-container {
+  font-family: 'Arial', sans-serif;
+  padding: 30px;
+  max-width: 900px;
+  margin: 20px auto;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.investor-container h1 {
+  font-size: 2.2em;
+  color: #040435;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.investor-container p {
+  font-size: 1.1em;
+  color: #555;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.financial-highlight {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.financial-highlight h2 {
+  font-size: 1.5em;
+  color: #040435;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 8px;
+}
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.news-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.news-card h3 {
+  font-size: 1.2em;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.news-card .news-date {
+  font-size: 0.9em;
+  color: #777;
+  margin-bottom: 8px;
+}
+
+.news-card .news-summary {
+  font-size: 1em;
+  color: #555;
+}

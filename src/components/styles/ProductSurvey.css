@@ -1,0 +1,109 @@
+:root {
+  --primary-color: #007bff;
+  --primary-hover-color: #0056b3;
+  --text-color: #101010;
+  --border-color: #ccc;
+  --background-color: #f7f9fc;
+}
+
+.product-survey-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.product-survey-container h1 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+
+.product-survey-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.product-survey-form input,
+.product-survey-form select,
+.product-survey-form textarea {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: border 0.2s ease-in-out;
+}
+
+.product-survey-form input:focus,
+.product-survey-form select:focus,
+.product-survey-form textarea:focus {
+  border-color: var(--primary-color);
+}
+
+.product-survey-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.product-survey-form button {
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.product-survey-form button:hover {
+  background: var(--primary-hover-color);
+}
+
+.product-survey-form button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.survey-message {
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.survey-message::before {
+  content: "ℹ️ ";
+}
+
+.product-survey-form select option {
+  color: var(--text-color);
+}
+.product-survey-form input,
+.product-survey-form select,
+.product-survey-form textarea {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: border 0.2s ease-in-out;
+  color: black; /* Added this line to make text black */
+}
+
+/* Ensure placeholder text is also visible if you have any */
+.product-survey-form input::placeholder,
+.product-survey-form textarea::placeholder {
+  color: #666; /* Adjust as needed for better contrast */
+}
+
+/* If you have selected options in the dropdown, ensure their text is also black */
+.product-survey-form select option {
+  color: black; /* Ensure dropdown options are black */
+}

@@ -1,0 +1,135 @@
+/* --- Imports & Professional Theme --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+:root {
+  --primary-color: #2a9d8f; /* A modern teal */
+  --primary-hover: #268a7e;
+  --background-page: #f4f7f6;
+  --background-card: #ffffff;
+  --text-dark: #264653;
+  --text-light: #8a8a8a;
+  --border-color: #ced4da;
+  --success-color: #2a9d8f;
+  --error-color: #e76f51;
+  --shadow-light: rgba(42, 157, 143, 0.15);
+  --font-family: 'Poppins', sans-serif;
+}
+
+/* Apply a background color to the whole page */
+body {
+  background-color: var(--background-page);
+  font-family: var(--font-family);
+}
+
+/* --- Form Container --- */
+.dealer-form-container {
+  max-width: 480px;
+  margin: 50px auto;
+  padding: 2.5rem 2rem;
+  background-color: var(--background-card);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
+  text-align: center;
+}
+
+.dealer-form-container h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: var(--text-dark);
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+/* --- Form Elements --- */
+.dealer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.dealer-form input,
+.dealer-form textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  background-color: #fdfdfd;
+  color: var(--text-dark);
+  transition: all 0.2s ease-in-out;
+}
+
+.dealer-form input::placeholder,
+.dealer-form textarea::placeholder {
+  color: var(--text-light);
+}
+
+.dealer-form input:focus,
+.dealer-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px var(--shadow-light);
+}
+
+.dealer-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* --- Submission Button --- */
+.dealer-form button {
+  padding: 14px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.dealer-form button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--shadow-light);
+}
+
+/* --- Feedback Messages --- */
+.success-message,
+.error-message {
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.success-message {
+  color: var(--success-color);
+}
+
+.error-message {
+  color: var(--error-color);
+}
+
+/* --- Login Link --- */
+.login-link {
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.login-link span {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: border-bottom 0.2s ease;
+}
+
+.login-link span:hover {
+  border-bottom: 1px solid var(--primary-color);
+}

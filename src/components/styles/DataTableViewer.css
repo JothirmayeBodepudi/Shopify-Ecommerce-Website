@@ -1,0 +1,144 @@
+/* --- Table Styles --- */
+.data-table-container {
+  overflow-x: auto; /* Allows horizontal scrolling on small screens */
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.data-table th, .data-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  white-space: nowrap; /* Prevents text wrapping */
+}
+
+.data-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.data-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.data-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* --- Action Buttons --- */
+.actions-cell {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-edit {
+  background-color: #2980b9;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #c0392b;
+  color: white;
+}
+
+/* --- Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* --- Form Styles within Modal --- */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-group input:disabled {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
+/* --- Add or update these Modal Styles in DataTableViewer.css --- */
+
+.modal-content {
+    /* ... keep your existing styles like background, padding, width ... */
+    max-height: 90vh; /* Set a maximum height */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent the whole modal from overflowing */
+}
+
+.modal-header {
+    flex-shrink: 0; /* Prevent header from shrinking */
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* This makes the form fill the available space */
+.modal-form {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* This is the key part: the scrollable area */
+.modal-body {
+    flex-grow: 1; /* Allows the body to take up available space */
+    overflow-y: auto; /* Adds a vertical scrollbar ONLY when needed */
+    padding: 20px 5px; /* Adds spacing for the scrollbar */
+}
+
+.modal-footer {
+    flex-shrink: 0; /* Prevent footer from shrinking */
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

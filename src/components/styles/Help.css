@@ -1,0 +1,76 @@
+/* Help.css */
+.help-container {
+  font-family: 'Arial', sans-serif;
+  padding: 30px;
+  max-width: 900px;
+  margin: 20px auto;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.help-container h1 {
+  font-size: 2.2em;
+  color: #040435;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.help-container p {
+  font-size: 1.1em;
+  color: #555;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.faq-section {
+  margin-top: 30px;
+}
+
+.faq-section h2 {
+  font-size: 1.5em;
+  color: #040435;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 8px;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.faq-item {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+  text-align: center;
+}
+
+.faq-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.faq-item img {
+  width: 100%;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.faq-item h3 {
+  font-size: 1.2em;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.faq-item p {
+  font-size: 1em;
+  color: #555;
+}

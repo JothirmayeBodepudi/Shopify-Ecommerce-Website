@@ -1,0 +1,272 @@
+[
+  {
+    "id": 1,
+    "name": "Elegant Smartwatch",
+    "category": "Electronics",
+    "brand": "TechNow",
+    "price": 199.99,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpAmmqI23vBMS-x6157V1rX2kNGdrYfgDQsg&s",
+    "description": "Stay connected and stylish with fitness tracking and smart notifications."
+  },
+  {
+    "id": 2,
+    "name": "Wireless Noise",
+    "category": "Electronics",
+    "brand": "TechNow",
+    "price": 249.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRHFLhj8J4Gvw_hirgnhRUmYKj5ntaisVNkg&s",
+    "description": "Premium noise-cancelling headphones with immersive sound quality."
+  },
+  {
+    "id": 3,
+    "name": "Portable Bluetooth",
+    "category": "Electronics",
+    "brand": "TechNow",
+    "price": 79.5,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbsBkhLq6fqvVTN6RHMteCFZRv98MJVvPUYQ&s",
+    "description": "Compact Bluetooth speaker with powerful bass and long battery life."
+  },
+  {
+    "id": 4,
+    "name": "Ergonomic Office Chair",
+    "category": "Home Goods",
+    "brand": "HomeLux",
+    "price": 350.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdflHKII_373jovLX-HOlHmFDfgn0F_i9aWA&s",
+    "description": "Supportive office chair designed for comfort during long work hours."
+  },
+  {
+    "id": 5,
+    "name": "High-Performance Laptop",
+    "category": "Electronics",
+    "brand": "TechNow",
+    "price": 1200.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvRsbKIIZORIitKFZJiJ88gUOn17DZPc82_A&s",
+    "description": "Powerful laptop built for speed, multitasking, and high-end gaming."
+  },
+  {
+    "id": 6,
+    "name": "Designer Leather Bag",
+    "category": "Apparel",
+    "brand": "ChicWear",
+    "price": 299.99,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRq27LmH8CeRFl0pSy1-yPL0holzLCmYL3LBw&s",
+    "description": "Luxury handcrafted leather bag for fashion-forward professionals."
+  },
+  {
+    "id": 7,
+    "name": "Smart Home Sensor",
+    "category": "Electronics",
+    "brand": "TechNow",
+    "price": 120.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTOyjRbHkmr1pjuD_hxH0L6Q4tCqDl56ufKA&s",
+    "description": "Monitor your home with real-time alerts and smart automation."
+  },
+  {
+    "id": 8,
+    "name": "Gourmet Coffee Maker",
+    "category": "Home Goods",
+    "brand": "HomeLux",
+    "price": 150.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPHiRm53OaLAzggjlUBwoK_wwV_8pRIRE0nQ&s",
+    "description": "Brew barista-quality coffee with ease at home."
+  },
+  {
+    "id": 9,
+    "name": "Running Shoes",
+    "category": "Sports",
+    "brand": "ActivePro",
+    "price": 89.99,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWhRGZHWox_D3phCzCGS9HXnkmQTZp_I_OsA&s",
+    "description": "Lightweight and durable shoes designed for runners and athletes."
+  },
+  {
+    "id": 10,
+    "name": "Noise Cancelling Earbuds",
+    "category": "Electronics",
+    "brand": "SoundMax",
+    "price": 159.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNCIdRpl0nDw0l7k90aGQbSCZ1eEnEWLW4UQ&s",
+    "description": "Crystal-clear sound with superior noise isolation in a compact design."
+  },
+  {
+    "id": 11,
+    "name": "Luxury Perfume",
+    "category": "Beauty",
+    "brand": "FragranceX",
+    "price": 129.99,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8Bsnz3ywqcOnqX06lG_QjtZ6bzwz1q-iAHA&s",
+    "description": "Elegant fragrance with long-lasting scent for every occasion."
+  },
+  {
+    "id": 12,
+    "name": "Yoga Mat",
+    "category": "Sports",
+    "brand": "FlexFit",
+    "price": 45.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUFNs5PBbpezqdingQ2JBwlh4o29B0qMMhNA&s",
+    "description": "Eco-friendly yoga mat with non-slip surface for stability."
+  },
+  {
+    "id": 13,
+    "name": "LED Desk Lamp",
+    "category": "Home Goods",
+    "brand": "BrightLite",
+    "price": 60.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2Efnikvw66qZHw4aMiixJP6O0BPqk3FGzQw&s",
+    "description": "Adjustable LED desk lamp with multiple brightness settings."
+  },
+  {
+    "id": 14,
+    "name": "Casual Denim Jacket",
+    "category": "Apparel",
+    "brand": "ChicWear",
+    "price": 110.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmTMSOmJqn4OVecPqRqf_27iINQO1O9SXAbQ&s",
+    "description": "Trendy denim jacket for a casual yet stylish look."
+  },
+  {
+    "id": 15,
+    "name": "Gaming Mouse",
+    "category": "Electronics",
+    "brand": "ProGamer",
+    "price": 49.99,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZGlY6S44NITyCnGIULKo1nUx7q1s6a6dPvg&s",
+    "description": "High-precision gaming mouse with customizable buttons."
+  },
+  {
+    "id": 16,
+    "name": "Stainless Steel Cookware Set",
+    "category": "Home Goods",
+    "brand": "HomeLux",
+    "price": 220.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZdcLHZB1xFGxpz4F-5r_A8CBPNhIhVSbCIQ&s",
+    "description": "Durable stainless steel cookware set for everyday cooking."
+  },
+  {
+    "id": 17,
+    "name": "Fitness Tracker Band",
+    "category": "Electronics",
+    "brand": "TechNow",
+    "price": 99.99,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpMwq0mbPzVeIf2XMMzAXffeyZMSkG7gIDKA&s",
+    "description": "Track your steps, heart rate, and sleep with ease."
+  },
+  {
+    "id": 18,
+    "name": "Silk Scarf",
+    "category": "Apparel",
+    "brand": "ChicWear",
+    "price": 75.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5i-8HClRhsUbcG53EOUkx5B8G7e2XitMDOQ&s",
+    "description": "Elegant silk scarf to elevate your style."
+  },
+  {
+    "id": 19,
+    "name": "Professional DSLR Camera",
+    "category": "Electronics",
+    "brand": "PhotoPro",
+    "price": 1500.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-AKmUZ8XUdRSBseZt5pa-2-fgBLThzhUgag&s",
+    "description": "Capture stunning photos and videos with professional clarity."
+  },
+  {
+    "id": 20,
+    "name": "Scented Candle Set",
+    "category": "Home Goods",
+    "brand": "CozyHome",
+    "price": 40.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPfVItRdgMRuXI4anETfABXjyVnV3bN4Lm9Q&s",
+    "description": "Relaxing scented candles for a cozy atmosphere."
+  },
+  {
+    "id": 21,
+    "name": "E-Reader Tablet",
+    "category": "Electronics",
+    "brand": "ReadEasy",
+    "price": 180.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8leLPn43ctYb6nrhrd3BnTvHuaQvXkybM-Q&s",
+    "description": "Read books anytime with a glare-free screen and long battery life."
+  },
+  {
+    "id": 22,
+    "name": "Office Desk",
+    "category": "Furniture",
+    "brand": "HomeLux",
+    "price": 420.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVCOL3OeYaN3op2-u8VWQbiZp1Om-bJz0WsQ&s",
+    "description": "Spacious and sturdy desk for your home office setup."
+  },
+  {
+    "id": 23,
+    "name": "Leather Wallet",
+    "category": "Apparel",
+    "brand": "ChicWear",
+    "price": 59.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoFDHByoDLlJchOYIIxsRFeTtPE_TYvAvLSg&s",
+    "description": "Sleek and durable wallet crafted from genuine leather."
+  },
+  {
+    "id": 24,
+    "name": "Wireless Keyboard",
+    "category": "Electronics",
+    "brand": "KeyMaster",
+    "price": 89.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkAWEoWK-uuuwOY0fWoeIRBo7UmqmckhwqnQ&s",
+    "description": "Slim and responsive keyboard for fast, wireless typing."
+  },
+  {
+    "id": 25,
+    "name": "Cookbook: Italian Recipes",
+    "category": "Books",
+    "brand": "FoodiePress",
+    "price": 25.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQUVcd7Oaguu2DOaDreyA8K-zFqU1ywoT_dA&s",
+    "description": "Delicious Italian recipes for home chefs of all levels."
+  },
+  {
+    "id": 26,
+    "name": "Camping Tent",
+    "category": "Sports & Outdoors",
+    "brand": "OutdoorX",
+    "price": 199.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTf4IvLo-wBmCTgVGGoaEBRqQ74B675ec3gZg&s",
+    "description": "Spacious and weatherproof tent for outdoor adventures."
+  },
+  {
+    "id": 27,
+    "name": "Board Game",
+    "category": "Toys & Games",
+    "brand": "FunTime",
+    "price": 45.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmd36yRarIq2RFSQX4cWAsvFkOxEqIga4X8w&s",
+    "description": "Fun and interactive board game for family and friends."
+  },
+  {
+    "id": 28,
+    "name": "Shampoo & Conditioner Set",
+    "category": "Beauty & Personal Care",
+    "brand": "GlowCare",
+    "price": 35.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUyWX0ERpR28lNs0jJJEL6ENO6yKfvtYADMQ&s",
+    "description": "Nourishing shampoo and conditioner for smooth, shiny hair."
+  },
+  {
+    "id": 29,
+    "name": "Adjustable Dumbbells",
+    "category": "Fitness Equipment",
+    "brand": "FlexFit",
+    "price": 260.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRfu0RbdJ_W6LOZx1AGAELNGi_72tZq5uPYQ&s",
+    "description": "Space-saving dumbbells with adjustable weight settings."
+  },
+  {
+    "id": 30,
+    "name": "Bluetooth Speaker",
+    "category": "Electronics",
+    "brand": "SoundMax",
+    "price": 120.0,
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTb3C5N43HZcxI5P7bXcEUcBAw2GwMM2HhKDA&s",
+    "description": "Portable speaker with deep bass and Bluetooth 5.0 connectivity."
+  }
+]

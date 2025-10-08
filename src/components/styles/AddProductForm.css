@@ -1,0 +1,62 @@
+/* Styles for the AddProductForm component */
+.add-product-container {
+  width: 100%;
+}
+
+.add-product-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.add-product-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.add-product-form input[type="text"],
+.add-product-form input[type="number"],
+.add-product-form input[type="file"],
+.add-product-form textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.add-product-form input[type="file"] {
+  padding: 0.5rem; /* Special padding for file input */
+}
+
+.add-product-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.add-product-form input:focus,
+.add-product-form textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.add-product-form .btn {
+  width: 100%;
+}
+
+.success-message {
+  color: #28a745;
+  text-align: center;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.error-message {
+  color: #dc3545;
+  text-align: center;
+  margin-top: 1rem;
+  font-weight: 500;
+}

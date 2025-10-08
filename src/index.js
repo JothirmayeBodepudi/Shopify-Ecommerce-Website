@@ -1,17 +1,31 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+// index.js
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import { AuthProvider } from "react-oidc-context";
+import { CartProvider } from "./components/context/CartContext";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const cognitoAuthConfig = {
+  authority: "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_0WjoV9R47",
+  client_id: "1a4qii0kgoqusmr1ufbku7vjtv",
+  redirect_uri: "http://localhost:3000/home",
+  logout_uri: "http://localhost:3000/logout-success",
+  response_type: "code",
+  scope: "email openid phone profile",
+
+  //automaticSilentRenew: true, // Keep this true for good UX
+ // revokeTokensOnSignout: true, // Recommended for security
+};
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+
+// ✅ Single render call wrapping both providers
 root.render(
   <React.StrictMode>
-    <App />
+    <AuthProvider {...cognitoAuthConfig}>
+      <CartProvider>
+        <App />
+      </CartProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
