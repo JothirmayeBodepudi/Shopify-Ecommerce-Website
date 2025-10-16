@@ -6,19 +6,15 @@ import { AuthProvider } from "react-oidc-context";
 import { CartProvider } from "./components/context/CartContext";
 
 const cognitoAuthConfig = {
-<<<<<<< HEAD
-  authority: process.env.REACT_APP_AUTHORITY,
-  client_id: process.env.REACT_APP_CLIENT_ID,
-  redirect_uri: process.env.REACT_APP_REDIRECT_URI,
-  logout_uri: process.env.REACT_APP_LOGOUT_URI,
-=======
-  authority: "",
-  client_id: "",
-  redirect_uri: "http://localhost:3000/home",
-  logout_uri: "http://localhost:3000/logout-success",
->>>>>>> 695b864f11a21854b8716e13f51eb484d76132f1
+  authority: "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_0WjoV9R47",
+  client_id: "1a4qii0kgoqusmr1ufbku7vjtv",
+  redirect_uri: "https://main.d16qh40r4g1tpl.amplifyapp.com/home",
+  logout_uri: "https://main.d16qh40r4g1tpl.amplifyapp.com/logout-success",
   response_type: "code",
   scope: "email openid phone profile",
+
+  //automaticSilentRenew: true, // Keep this true for good UX
+ // revokeTokensOnSignout: true, // Recommended for security
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
