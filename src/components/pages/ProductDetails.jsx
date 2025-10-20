@@ -6,7 +6,7 @@ import { useCart } from "../context/CartContext";
 import "../styles/ProductDetails.css";
 // import { products } from "../data/products"; // (DELETED) No longer using static data
 
-const API_URL = 'http://localhost:5001';
+const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001';
 
 export default function ProductDetails() {
   const { id } = useParams(); // id comes from the URL

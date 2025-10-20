@@ -3,7 +3,7 @@ import axios from 'axios';
 // It's good practice to have a separate CSS file for a complex component
  import '../styles/DataTableViewer.css'; 
 
-const API_URL = 'http://localhost:5001';
+const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001';
 
 export default function DataTableViewer({ data, tableName, token, refreshData, onLogout }) {
     // --- STATE MANAGEMENT ---

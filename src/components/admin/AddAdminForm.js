@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 // The API URL for adding a new admin user
+const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001';
 const ADD_USER_URL = '/api/admin/add-user';
 
 function AddAdminForm({ token }) {

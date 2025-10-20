@@ -7,7 +7,7 @@ import { useCart } from "../context/CartContext";
 import Footer from "../Footer";
 // import { products } from "../data/products"; // (DELETED) No longer using static data
 
-const API_URL = 'http://localhost:5001'; // Your backend URL
+const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001'; // Your backend URL
 
 export default function ShopPage() {
   // --- (NEW) State for products, loading, and errors ---

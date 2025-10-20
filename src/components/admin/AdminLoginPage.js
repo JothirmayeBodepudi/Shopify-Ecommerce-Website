@@ -3,7 +3,7 @@ import axios from 'axios';
 import '../styles/AdminLogin.css'; // Basic styling
 
 // The API URL for the login endpoint
-const API_URL = 'http://localhost:5001/api/admin/login';
+const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001/api/admin/login';
 
 function AdminLoginPage({ onLogin }) {
   const [username, setUsername] = useState('');

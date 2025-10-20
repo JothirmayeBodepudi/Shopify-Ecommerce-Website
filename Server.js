@@ -21,14 +21,25 @@ const { S3Client } = require("@aws-sdk/client-s3");
 const app = express();
 
 // MIDDLEWARE
-app.use(cors({
-  origin: "http://localhost:3000",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
-}));
+const allowedOrigins = [
+  'http://localhost:3000', // Your local React dev server
+  'https://shopify-ecommerce-website-nu.vercel.app' // Your deployed frontend
+];
 
-// Body parsers come right after cors.
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+};
+
+// Use the configured CORS options
+app.use(cors(corsOptions));
 
 // --- AWS SDK v3 Client Configuration ---
 const REGION = process.env.AWS_REGION;
