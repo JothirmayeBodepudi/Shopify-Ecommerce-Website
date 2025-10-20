@@ -2,8 +2,16 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/AdminLogin.css'; // Basic styling
 
-// The API URL for the login endpoint
-const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001/api/admin/login';
+// --- REFACTORED API URL LOGIC ---
+
+// Determine the correct base URL based on the environment (development vs. production)
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? process.env.REACT_APP_API_PROD_URL // Your live Vercel URL
+  : process.env.REACT_APP_API_DEV_URL;   // Your local development URL (e.g., http://localhost:5001)
+
+// The specific endpoint for this component
+const LOGIN_ENDPOINT = '/api/admin/login';
+
 
 function AdminLoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -17,7 +25,8 @@ function AdminLoginPage({ onLogin }) {
     setLoading(true);
 
     try {
-      const response = await axios.post(API_URL, {
+      // Construct the full URL for the request
+      const response = await axios.post(`${API_BASE_URL}${LOGIN_ENDPOINT}`, {
         username,
         password,
       });
