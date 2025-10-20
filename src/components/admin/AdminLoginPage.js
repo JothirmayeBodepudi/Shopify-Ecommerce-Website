@@ -6,7 +6,7 @@ import '../styles/AdminLogin.css'; // Basic styling
 
 // Determine the correct base URL based on the environment (development vs. production)
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? process.env.REACT_APP_API_BASE_URL  // Your live Vercel URL
+  ? process.env.REACT_APP_API_PROD_URL  // Your live Vercel URL
   : process.env.REACT_APP_API_DEV_URL;   // Your local development URL (e.g., http://localhost:5001)
 
 // The specific endpoint for this component
