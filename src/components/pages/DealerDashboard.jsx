@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/DealerDashboard.css"; // Make sure you have this CSS file
 import axios from "axios";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 
 // --- Form Component for Adding Products ---
 function AddProductForm({ dealerId, dealerInfo }) {
@@ -36,7 +36,7 @@ function AddProductForm({ dealerId, dealerInfo }) {
         formData.append("image", file);
 
         try {
-            const response = await fetch(`${API_BASE}/dealer/products`, {
+            const response = await fetch(`/api/dealer/products`, {
                 method: "POST",
                 body: formData,
             });
@@ -93,7 +93,7 @@ function EditProductModal({ product, onClose, onSave }) {
         e.preventDefault();
         setMessage('Updating...');
         try {
-            const response = await axios.put(`${API_BASE}/dealer/products/${product.productId}`, formData);
+            const response = await axios.put(`/api/dealer/products/${product.productId}`, formData);
             if (response.data.success) {
                 onSave(); // Refreshes the product list in the parent
                 onClose(); // Closes the modal
@@ -138,7 +138,7 @@ function ViewMyProducts({ dealerId }) {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${API_BASE}/dealer/products/${dealerId}`);
+            const response = await axios.get(`/api/dealer/products/${dealerId}`);
             if (response.data.success) {
                 setProducts(response.data.products);
             }
@@ -157,7 +157,7 @@ function ViewMyProducts({ dealerId }) {
         if (!window.confirm("Are you sure you want to delete this product?")) return;
 
         try {
-            await axios.delete(`${API_BASE}/dealer/products/${productId}`);
+            await axios.delete(`/api/dealer/products/${productId}`);
             fetchProducts(); // Refresh the list after deleting
         } catch (err) {
             alert("Failed to delete product.");
@@ -225,12 +225,12 @@ export default function DealerDashboard() {
 
     useEffect(() => {
         if (!dealerId) {
-            navigate("/dealer-login");
+            navigate("/api/dealer-login");
             return;
         }
         const fetchDealerInfo = async () => {
             try {
-                const response = await fetch(`${API_BASE}/dealers/${dealerId}`);
+                const response = await fetch(`/api/dealers/${dealerId}`);
                 const data = await response.json();
                 if (data.success) {
                     setDealerInfo(data.dealer);

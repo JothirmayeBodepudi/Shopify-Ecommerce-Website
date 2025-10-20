@@ -13,7 +13,7 @@ export default function MediaQueries() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/media-queries", {
+      const response = await fetch("/api/media-queries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, query }),

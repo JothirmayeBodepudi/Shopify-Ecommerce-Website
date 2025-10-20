@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/AddProductForm.css';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'http://localhost:5001';
 
 // Add onLogout to the props to handle session expiry
 function AddProductForm({ token, onLogout }) {
@@ -48,7 +48,7 @@ function AddProductForm({ token, onLogout }) {
 
     try {
       const response = await axios.post(
-        `${API_URL}/admin/products`, // This URL now matches the backend
+        `/api/admin/products`, // This URL now matches the backend
         formData,
         {
           headers: {

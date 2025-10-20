@@ -3,6 +3,7 @@ import "../styles/BusinessOrders.css";
 import Navbar from "../Navbar";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useCart } from "../context/CartContext"; // Import the custom hook
+import Footer from "../Footer";
 
 const BusinessOrderPage = () => {
   const { cart, clearCart } = useCart();
@@ -250,6 +251,7 @@ const BusinessOrderPage = () => {
           </div>
         )}
       </div>
+      <Footer />
     </>
   );
 };

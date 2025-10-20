@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 // The API URL for adding a new admin user
-const ADD_USER_URL = 'http://localhost:5000/admin/add-user';
+const ADD_USER_URL = '/api/admin/add-user';
 
 function AddAdminForm({ token }) {
   const [username, setUsername] = useState('');

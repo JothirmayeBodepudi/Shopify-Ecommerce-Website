@@ -21,7 +21,12 @@ const { S3Client } = require("@aws-sdk/client-s3");
 const app = express();
 
 // MIDDLEWARE
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
+}));
+
+// Body parsers come right after cors.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -88,7 +93,7 @@ const authenticateToken = (req, res, next) => {
 // ================= ADMIN ROUTES =================
 
 // --- ADMIN: LOGIN ---
-app.post("/admin/login", async (req, res) => {
+app.post("/api/admin/login", async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: "Username and password are required" });
 
@@ -111,7 +116,7 @@ app.post("/admin/login", async (req, res) => {
 });
 
 // --- ADMIN: ADD USER ---
-app.post("/admin/add-user", authenticateToken, async (req, res) => {
+app.post("/api/admin/add-user", authenticateToken, async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: "Username and password are required" });
     
@@ -133,7 +138,7 @@ app.post("/admin/add-user", authenticateToken, async (req, res) => {
 });
 
 // --- ADMIN: ADD PRODUCT ---
-app.post("/admin/products", authenticateToken, upload.single("image"), async (req, res) => {
+app.post("/api/admin/products", authenticateToken, upload.single("image"), async (req, res) => {
     try {
         const { name, price, description, category, brand } = req.body;
         if (!name || !price) return res.status(400).json({ success: false, error: "Product name and price are required." });
@@ -167,12 +172,12 @@ const createScanHandler = (tableName) => async (req, res) => {
     }
 };
 
-app.get("/admin/contacts", authenticateToken, createScanHandler(CONTACT_TABLE));
-app.get("/admin/dealers", authenticateToken, createScanHandler(DEALER_TABLE));
-app.get("/admin/media-queries", authenticateToken, createScanHandler(MEDIA_QUERIES_TABLE));
-app.get("/admin/product-surveys", authenticateToken, createScanHandler(PRODUCT_SURVEY_TABLE));
-app.get("/admin/products", authenticateToken, createScanHandler(PRODUCT_TABLE));
-app.get("/admin/admins", authenticateToken, async (req, res) => {
+app.get("/api/admin/contacts", authenticateToken, createScanHandler(CONTACT_TABLE));
+app.get("/api/admin/dealers", authenticateToken, createScanHandler(DEALER_TABLE));
+app.get("/api/admin/media-queries", authenticateToken, createScanHandler(MEDIA_QUERIES_TABLE));
+app.get("/api/admin/product-surveys", authenticateToken, createScanHandler(PRODUCT_SURVEY_TABLE));
+app.get("/api/admin/products", authenticateToken, createScanHandler(PRODUCT_TABLE));
+app.get("/api/admin/admins", authenticateToken, async (req, res) => {
     try {
         const command = new ScanCommand({ TableName: ADMIN_TABLE });
         const { Items } = await docClient.send(command);
@@ -188,7 +193,7 @@ app.get("/admin/admins", authenticateToken, async (req, res) => {
 
 // Add this new route to server.js batch delete
 
-app.post("/admin/batch-delete", authenticateToken, async (req, res) => {
+app.post("/api/admin/batch-delete", authenticateToken, async (req, res) => {
     const { tableName, ids } = req.body;
 
     if (!tableName || !ids || !Array.isArray(ids) || ids.length === 0) {
@@ -263,22 +268,22 @@ const createUpdateHandler = (tableName, keyName) => async (req, res) => {
 };
 
 // Contacts
-app.delete("/admin/contacts/:id", authenticateToken, createDeleteHandler(CONTACT_TABLE, "id"));
-app.put("/admin/contacts/:id", authenticateToken, createUpdateHandler(CONTACT_TABLE, "id"));
+app.delete("/api/admin/contacts/:id", authenticateToken, createDeleteHandler(CONTACT_TABLE, "id"));
+app.put("/api/admin/contacts/:id", authenticateToken, createUpdateHandler(CONTACT_TABLE, "id"));
 // Dealers
-app.delete("/admin/dealers/:dealerId", authenticateToken, createDeleteHandler(DEALER_TABLE, "dealerId"));
-app.put("/admin/dealers/:dealerId", authenticateToken, createUpdateHandler(DEALER_TABLE, "dealerId"));
+app.delete("/api/admin/dealers/:dealerId", authenticateToken, createDeleteHandler(DEALER_TABLE, "dealerId"));
+app.put("/api/admin/dealers/:dealerId", authenticateToken, createUpdateHandler(DEALER_TABLE, "dealerId"));
 // Media Queries
-app.delete("/admin/media-queries/:id", authenticateToken, createDeleteHandler(MEDIA_QUERIES_TABLE, "id"));
-app.put("/admin/media-queries/:id", authenticateToken, createUpdateHandler(MEDIA_QUERIES_TABLE, "id"));
+app.delete("/api/admin/media-queries/:id", authenticateToken, createDeleteHandler(MEDIA_QUERIES_TABLE, "id"));
+app.put("/api/admin/media-queries/:id", authenticateToken, createUpdateHandler(MEDIA_QUERIES_TABLE, "id"));
 // Product Surveys
-app.delete("/admin/product-surveys/:id", authenticateToken, createDeleteHandler(PRODUCT_SURVEY_TABLE, "id"));
-app.put("/admin/product-surveys/:id", authenticateToken, createUpdateHandler(PRODUCT_SURVEY_TABLE, "id"));
+app.delete("/api/admin/product-surveys/:id", authenticateToken, createDeleteHandler(PRODUCT_SURVEY_TABLE, "id"));
+app.put("/api/admin/product-surveys/:id", authenticateToken, createUpdateHandler(PRODUCT_SURVEY_TABLE, "id"));
 // Admins
-app.delete("/admin/admins/:username", authenticateToken, createDeleteHandler(ADMIN_TABLE, "username"));
+app.delete("/api/admin/admins/:username", authenticateToken, createDeleteHandler(ADMIN_TABLE, "username"));
 // Products
-app.delete("/admin/products/:productId", authenticateToken, createDeleteHandler(PRODUCT_TABLE, "productId"));
-app.put("/admin/products/:productId", authenticateToken, createUpdateHandler(PRODUCT_TABLE, "productId"));
+app.delete("/api/admin/products/:productId", authenticateToken, createDeleteHandler(PRODUCT_TABLE, "productId"));
+app.put("/api/admin/products/:productId", authenticateToken, createUpdateHandler(PRODUCT_TABLE, "productId"));
 
 
 // ================= PUBLIC ROUTES =================
@@ -287,7 +292,7 @@ app.put("/admin/products/:productId", authenticateToken, createUpdateHandler(PRO
 // --- GET SINGLE PRODUCT BY ID ---
 // In server.js, replace your existing "/products/:productId" route with this one.
 
-app.get("/products/:productId", async (req, res) => {
+app.get("/api/products/:productId", async (req, res) => {
     try {
         const { productId } = req.params;
 
@@ -348,7 +353,7 @@ app.get("/products/:productId", async (req, res) => {
 
 // In server.js, replace your existing "/products" route with this one.
 
-app.get("/products", async (req, res) => {
+app.get("/api/products", async (req, res) => {
     try {
         // 1. Create scan commands for both tables
         const adminProductsCommand = new ScanCommand({ TableName: PRODUCT_TABLE });
@@ -385,7 +390,7 @@ app.get("/products", async (req, res) => {
     }
 });
 // --- POST ROUTES ---
-app.post("/contact", async (req, res) => {
+app.post("/api/contact", async (req, res) => {
     const { name, email, message } = req.body;
     if (!name || !email || !message) return res.status(400).json({ success: false, error: "Missing required fields" });
     const item = { id: Date.now().toString(), name, email, message, createdAt: new Date().toISOString() };
@@ -398,7 +403,7 @@ app.post("/contact", async (req, res) => {
     }
 });
 
-app.post("/business-orders", async (req, res) => {
+app.post("/api/business-orders", async (req, res) => {
     const { name, email, phone, company, selectedProducts, shippingAddress, billingAddress, total } = req.body;
     if (!name || !email || !phone || !selectedProducts) return res.status(400).json({ success: false, error: "Missing required fields" });
     const item = { id: Date.now().toString(), name, email, phone, company: company || "", selectedProducts, shippingAddress, billingAddress, total, createdAt: new Date().toISOString() };
@@ -411,7 +416,7 @@ app.post("/business-orders", async (req, res) => {
     }
 });
 
-app.post("/product-survey", async (req, res) => {
+app.post("/api/product-survey", async (req, res) => {
     // Destructure `productName` from the request body to match the frontend
     const { productName, rating, feedback } = req.body;
 
@@ -447,7 +452,7 @@ app.post("/product-survey", async (req, res) => {
 });
 
 
-app.post("/media-queries", async (req, res) => {
+app.post("/api/media-queries", async (req, res) => {
     const { name, email, query } = req.body;
     if (!name || !email || !query) return res.status(400).json({ success: false, error: "Missing required fields" });
     const item = { id: Date.now().toString(), name, email, query, createdAt: new Date().toISOString() };
@@ -460,7 +465,7 @@ app.post("/media-queries", async (req, res) => {
     }
 });
 
-app.post("/dealers", async (req, res) => {
+app.post("/api/dealers", async (req, res) => {
     const { name, email, phone, company, address } = req.body;
     if (!name || !email || !phone) return res.status(400).json({ success: false, error: "Missing required fields" });
     const item = { dealerId: Date.now().toString(), name, email, phone, company: company || "", address: address || "", createdAt: new Date().toISOString() };
@@ -477,7 +482,7 @@ app.post("/dealers", async (req, res) => {
 
 // In server.js, replace the old /dealers/login route
 
-app.post("/dealers/login", async (req, res) => {
+app.post("/api/dealers/login", async (req, res) => {
     const { email, phone } = req.body; // Expect email and phone
 
     if (!email || !phone) {
@@ -516,7 +521,7 @@ app.post("/dealers/login", async (req, res) => {
 });
 // Add this to your server.js file
 
-app.get("/dealers/:dealerId", async (req, res) => {
+app.get("/api/dealers/:dealerId", async (req, res) => {
     try {
         const { dealerId } = req.params;
         const command = new GetCommand({
@@ -538,7 +543,7 @@ app.get("/dealers/:dealerId", async (req, res) => {
 });
 
 // --- (NEW) VENDOR: ADD PRODUCT ---
-app.post("/dealer/products", vendorUpload.single("image"), async (req, res) => {
+app.post("/api/dealer/products", vendorUpload.single("image"), async (req, res) => {
     try {
         const { dealerId, name, price, description, category, brand } = req.body;
         if (!dealerId || !name || !price || !req.file) {
@@ -568,7 +573,7 @@ app.post("/dealer/products", vendorUpload.single("image"), async (req, res) => {
 // Add these three routes to server.js
 
 // --- GET ALL PRODUCTS FOR A SPECIFIC DEALER ---
-app.get("/dealer/products/:dealerId", async (req, res) => {
+app.get("/api/dealer/products/:dealerId", async (req, res) => {
     try {
         const { dealerId } = req.params;
         const command = new ScanCommand({
@@ -587,7 +592,7 @@ app.get("/dealer/products/:dealerId", async (req, res) => {
 });
 
 // --- DELETE A VENDOR'S PRODUCT ---
-app.delete("/dealer/products/:productId", async (req, res) => {
+app.delete("/api/dealer/products/:productId", async (req, res) => {
     try {
         const { productId } = req.params;
         // In a real app, you'd also check if the logged-in dealer owns this product
@@ -608,7 +613,7 @@ app.delete("/dealer/products/:productId", async (req, res) => {
 // --- UPDATE A VENDOR'S PRODUCT ---
 // In server.js, replace the existing PUT /dealer/products/:productId route
 
-app.put("/dealer/products/:productId", async (req, res) => {
+app.put("/api/dealer/products/:productId", async (req, res) => {
     try {
         const { productId } = req.params;
         const updatedProductData = req.body;
@@ -642,5 +647,5 @@ app.put("/dealer/products/:productId", async (req, res) => {
     }
 });
 // ================= START SERVER =================
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));

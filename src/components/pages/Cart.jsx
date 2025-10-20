@@ -4,6 +4,7 @@ import { useCart } from "../context/CartContext";
 import "../styles/Cart.css";
 import Navbar from "../Navbar";
 import { useNavigate } from "react-router-dom";
+import Footer from "../Footer";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
@@ -77,6 +78,7 @@ export default function CartPage() {
           )}
         </div>
       </div>
+      <Footer />
     </>
   );
 }

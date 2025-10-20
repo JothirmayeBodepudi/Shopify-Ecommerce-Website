@@ -3,7 +3,7 @@ import axios from 'axios';
 // It's good practice to have a separate CSS file for a complex component
  import '../styles/DataTableViewer.css'; 
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'http://localhost:5001';
 
 export default function DataTableViewer({ data, tableName, token, refreshData, onLogout }) {
     // --- STATE MANAGEMENT ---
@@ -51,7 +51,7 @@ export default function DataTableViewer({ data, tableName, token, refreshData, o
     const handleDelete = async (id) => {
         if (!endpoint) return;
         try {
-            await axios.delete(`${API_URL}/admin/${endpoint}/${id}`, {
+            await axios.delete(`/api/admin/${endpoint}/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setDeletingRowId(null);
@@ -67,7 +67,7 @@ export default function DataTableViewer({ data, tableName, token, refreshData, o
         if (!endpoint || !editingRow) return;
         const id = editingRow[primaryKey];
         try {
-            await axios.put(`${API_URL}/admin/${endpoint}/${id}`, editingRow, {
+            await axios.put(`/api/admin/${endpoint}/${id}`, editingRow, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setEditingRow(null);
@@ -86,7 +86,7 @@ export default function DataTableViewer({ data, tableName, token, refreshData, o
     const handleBatchDelete = async () => {
         if (!window.confirm(`Are you sure you want to delete ${selectedIds.length} item(s)?`)) return;
         try {
-            await axios.post(`${API_URL}/admin/batch-delete`, 
+            await axios.post(`/api/admin/batch-delete`, 
                 { tableName, ids: selectedIds },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 import "../styles/DealerRegistration.css";
+import Footer from "../Footer";
 
 export default function DealerRegistration() {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ export default function DealerRegistration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/dealers", {
+      const res = await fetch("/api/dealers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -69,6 +70,7 @@ export default function DealerRegistration() {
 
         {message && <p className={message.includes('✅') ? 'success-message' : 'error-message'}>{message}</p>}
       </div>
+<Footer />
     </>
   );
 }

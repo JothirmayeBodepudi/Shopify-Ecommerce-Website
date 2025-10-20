@@ -5,7 +5,7 @@ import AddProductForm from '../admin/AddProductForm';
 import DataTableViewer from '../admin/DataTableViewer';
 import '../styles/AdminDashboard.css';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'http://localhost:5001';
 
 function AdminDashboardPage({ user = { name: 'Admin' }, token, onLogout }) {
   const [activeView, setActiveView] = useState('viewTables');
@@ -15,7 +15,7 @@ function AdminDashboardPage({ user = { name: 'Admin' }, token, onLogout }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchData('Products', '/admin/products');
+    fetchData('Products', '/api/admin/products');
   }, []);
 
   const getInitials = (name) => (name ? name.charAt(0).toUpperCase() : '?');
@@ -60,12 +60,12 @@ function AdminDashboardPage({ user = { name: 'Admin' }, token, onLogout }) {
   const refreshCurrentTable = () => {
     if (currentTable) {
       const endpointMap = {
-        'Products': '/admin/products',
-        'Admins': '/admin/admins',
-        'Contact Messages': '/admin/contacts',
-        'Dealers': '/admin/dealers',
-        'Media Queries': '/admin/media-queries',
-        'Product Surveys': '/admin/product-surveys',
+        'Products': '/api/admin/products',
+        'Admins': '/api/admin/admins',
+        'Contact Messages': '/api/admin/contacts',
+        'Dealers': '/api/admin/dealers',
+        'Media Queries': '/api/admin/media-queries',
+        'Product Surveys': '/api/admin/product-surveys',
       };
       fetchData(currentTable, endpointMap[currentTable]);
     }
@@ -112,7 +112,7 @@ function AdminDashboardPage({ user = { name: 'Admin' }, token, onLogout }) {
           </button>
           <button 
             className={`nav-button ${activeView === 'viewTables' && currentTable === 'Products' ? 'active' : ''}`} 
-            onClick={() => fetchData('Products', '/admin/products')}
+            onClick={() => fetchData('Products', '/api/admin/products')}
           >
             View Products
           </button>
@@ -125,32 +125,32 @@ function AdminDashboardPage({ user = { name: 'Admin' }, token, onLogout }) {
           </button>
           <button 
             className={`nav-button ${activeView === 'viewTables' && currentTable === 'Admins' ? 'active' : ''}`} 
-            onClick={() => fetchData('Admins', '/admin/admins')}
+            onClick={() => fetchData('Admins', '/api/admin/admins')}
           >
             View Admins
           </button>
           <button 
             className={`nav-button ${activeView === 'viewTables' && currentTable === 'Contact Messages' ? 'active' : ''}`} 
-            onClick={() => fetchData('Contact Messages', '/admin/contacts')}
+            onClick={() => fetchData('Contact Messages', '/api/admin/contacts')}
           >
             View Contacts
           </button>
           <button 
             className={`nav-button ${activeView === 'viewTables' && currentTable === 'Dealers' ? 'active' : ''}`} 
-            onClick={() => fetchData('Dealers', '/admin/dealers')}
+            onClick={() => fetchData('Dealers', '/api/admin/dealers')}
           >
             View Dealers
           </button>
           {/* --- (NEW) Added remaining tables --- */}
           <button 
             className={`nav-button ${activeView === 'viewTables' && currentTable === 'Media Queries' ? 'active' : ''}`} 
-            onClick={() => fetchData('Media Queries', '/admin/media-queries')}
+            onClick={() => fetchData('Media Queries', '/api/admin/media-queries')}
           >
             View Media Queries
           </button>
           <button 
             className={`nav-button ${activeView === 'viewTables' && currentTable === 'Product Surveys' ? 'active' : ''}`} 
-            onClick={() => fetchData('Product Surveys', '/admin/product-surveys')}
+            onClick={() => fetchData('Product Surveys', '/api/admin/product-surveys')}
           >
             View Surveys
           </button>

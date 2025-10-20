@@ -6,7 +6,7 @@ import { useCart } from "../context/CartContext";
 import "../styles/ProductDetails.css";
 // import { products } from "../data/products"; // (DELETED) No longer using static data
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'http://localhost:5001';
 
 export default function ProductDetails() {
   const { id } = useParams(); // id comes from the URL
@@ -24,7 +24,7 @@ export default function ProductDetails() {
       try {
         setIsLoading(true);
         // Use the new server endpoint
-        const response = await axios.get(`${API_URL}/products/${id}`);
+        const response = await axios.get(`/api/products/${id}`);
         if (response.data.success) {
           setProduct(response.data.product);
         } else {

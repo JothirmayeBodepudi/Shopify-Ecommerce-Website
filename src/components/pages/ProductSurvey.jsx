@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Footer from "../Footer";
 // import Navbar from "../Navbar";  // Assuming Navbar and CSS are in parent folders
 // import "../styles/ProductSurvey.css";
 
@@ -24,7 +25,7 @@ export default function ProductSurvey() {
     try {
       // This fetch call is for demonstration.
       // Replace "http://localhost:5000/product-survey" with your actual API endpoint.
-      const response = await fetch("http://localhost:5000/product-survey", {
+      const response = await fetch("/api/product-survey", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -169,6 +170,7 @@ export default function ProductSurvey() {
         </form>
         {message && <p className="survey-message">{message}</p>}
       </div>
+      <Footer />
     </>
   );
 }

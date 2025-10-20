@@ -26,7 +26,7 @@ const ProfileForm = () => {
 
     // This is a crucial security step. You must call a secure backend endpoint
     // to update user attributes. Do NOT use the Cognito SDK directly on the frontend.
-    const API_ENDPOINT = "http://localhost:3000/update-profile";
+    const API_ENDPOINT = "http://localhost:3000/api/update-profile";
 
     try {
       const response = await fetch(API_ENDPOINT, {

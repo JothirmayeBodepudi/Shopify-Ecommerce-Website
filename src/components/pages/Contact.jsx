@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import Navbar from "../Navbar"; // ✅ Correctly import Navbar component
-import "../styles/Contact.css"; // ✅ CSS import is fine
+import Navbar from "../Navbar";
+import Footer from "../Footer"; // Corrected import
+import "../styles/Contact.css";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -16,7 +17,7 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/contact", {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -37,7 +38,7 @@ export default function Contact() {
 
   return (
     <>
-      <Navbar /> {/* ✅ Navbar now works */}
+      <Navbar />
       <div className="contact-container">
         <h1>Contact Us</h1>
         <p>We’d love to hear from you! Fill out the form below.</p>
@@ -73,6 +74,7 @@ export default function Contact() {
           <button type="submit">Send Message</button>
         </form>
       </div>
+      <Footer /> {/* Corrected component usage */}
     </>
   );
 }

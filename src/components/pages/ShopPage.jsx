@@ -4,9 +4,10 @@ import axios from "axios"; // (NEW) Import axios for API calls
 import Navbar from "../Navbar";
 import "../styles/ShopPage.css";
 import { useCart } from "../context/CartContext";
+import Footer from "../Footer";
 // import { products } from "../data/products"; // (DELETED) No longer using static data
 
-const API_URL = 'http://localhost:5000'; // Your backend URL
+const API_URL = 'http://localhost:5001'; // Your backend URL
 
 export default function ShopPage() {
   // --- (NEW) State for products, loading, and errors ---
@@ -29,7 +30,7 @@ export default function ShopPage() {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`${API_URL}/products`);
+        const response = await axios.get(`/api/products`);
         if (response.data.success) {
           setProducts(response.data.items);
         } else {
@@ -182,6 +183,7 @@ export default function ShopPage() {
           )}
         </main>
       </div>
+<Footer />
     </>
   );
 }
