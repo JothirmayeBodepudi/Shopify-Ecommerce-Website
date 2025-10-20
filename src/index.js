@@ -8,8 +8,8 @@ import { CartProvider } from "./components/context/CartContext";
 const cognitoAuthConfig = {
   authority: "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_0WjoV9R47",
   client_id: "1a4qii0kgoqusmr1ufbku7vjtv",
-  redirect_uri: "http://localhost:3000/home",
-  logout_uri: "http://localhost:3000/logout-success",
+  redirect_uri: "http://shopify-ecommerce-website-nu.vercel.app/home",
+  logout_uri: "http://shopify-ecommerce-website-nu.vercel.app/logout-success",
   response_type: "code",
   scope: "email openid phone profile",
 
