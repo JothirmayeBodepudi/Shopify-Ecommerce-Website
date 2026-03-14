@@ -9,37 +9,34 @@ require("dotenv").config();
 // --- AWS SDK v3 Imports ---
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { 
-    DynamoDBDocumentClient, 
-    PutCommand, 
-    ScanCommand, 
-    DeleteCommand, 
-    GetCommand,
-    BatchWriteCommand
+  DynamoDBDocumentClient, 
+  PutCommand, 
+  ScanCommand, 
+  DeleteCommand, 
+  GetCommand,
+  BatchWriteCommand,
+  UpdateCommand   // ✅ ADD THIS LINE
 } = require("@aws-sdk/lib-dynamodb");
+
 const { S3Client } = require("@aws-sdk/client-s3");
+
+
 
 const app = express();
 
+const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
+
+// SES is usually in the same region as your DynamoDB
+const sesClient = new SESClient({ region: "eu-north-1" });
 // MIDDLEWARE
-const allowedOrigins = [
-  'http://localhost:3000', // Your local React dev server
-  'https://shopify-ecommerce-website-nu.vercel.app' // Your deployed frontend
-];
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
+}));
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  }
-};
-
-// Use the configured CORS options
-app.use(cors(corsOptions));
+// Body parsers come right after cors.
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // --- AWS SDK v3 Client Configuration ---
 const REGION = process.env.AWS_REGION;
@@ -56,8 +53,10 @@ const {
     DYNAMODB_MEDIA_QUERIES_TABLE: MEDIA_QUERIES_TABLE,
     DYNAMODB_ADMIN_TABLE: ADMIN_TABLE,
     DYNAMODB_BUSINESS_ORDERS_TABLE: BUSINESS_ORDERS_TABLE,
-     DYNAMODB_VENDOR_PRODUCT_TABLE: VENDOR_PRODUCT_TABLE,
-    S3_BUCKET_NAME,
+    DYNAMODB_VENDOR_PRODUCT_TABLE: VENDOR_PRODUCT_TABLE,
+    DYNAMODB_ORDERS_TABLE: ORDERS_TABLE,
+
+     S3_BUCKET_NAME,
      S3_VENDOR_BUCKET_NAME
 } = process.env;
 
@@ -101,7 +100,27 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+const authenticateVendor = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.sendStatus(401);
+
+  const token = authHeader.split(" ")[1];
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err || user.role !== "vendor") {
+      return res.status(403).json({ error: "Vendor access required" });
+    }
+    req.vendorId = user.dealerId;
+    next();
+  });
+};
+
+
 // ================= ADMIN ROUTES =================
+
+// =============================================================================
+//                                ADMIN ROUTES
+// =============================================================================
 
 // --- ADMIN: LOGIN ---
 app.post("/api/admin/login", async (req, res) => {
@@ -126,61 +145,201 @@ app.post("/api/admin/login", async (req, res) => {
     }
 });
 
-// --- ADMIN: ADD USER ---
-app.post("/api/admin/add-user", authenticateToken, async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: "Username and password are required" });
-    
+// --- ADMIN: VIEW ALL ORDERS ---
+app.get("/api/admin/orders", authenticateToken, async (req, res) => {
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const command = new PutCommand({
-            TableName: ADMIN_TABLE,
-            Item: { username: username.toLowerCase(), password: hashedPassword },
-            ConditionExpression: "attribute_not_exists(username)",
-        });
-        await docClient.send(command);
-        res.status(201).json({ success: true, message: `Admin user '${username}' created.` });
-    } catch (error) {
-        if (error.name === 'ConditionalCheckFailedException') {
-            return res.status(409).json({ success: false, error: "Username already exists." });
-        }
-        res.status(500).json({ success: false, error: "Failed to create admin user." });
-    }
-});
-
-// --- ADMIN: ADD PRODUCT ---
-app.post("/api/admin/products", authenticateToken, upload.single("image"), async (req, res) => {
-    try {
-        const { name, price, description, category, brand } = req.body;
-        if (!name || !price) return res.status(400).json({ success: false, error: "Product name and price are required." });
-        const priceNumber = Number(price);
-        if (isNaN(priceNumber)) return res.status(400).json({ success: false, error: "Invalid price." });
-        if (!req.file || !req.file.location) return res.status(400).json({ success: false, error: "Image upload failed." });
-        
-        const productItem = {
-            productId: Date.now().toString(), name, price: priceNumber,
-            description: description || "", category: category || "", brand: brand || "",
-            imageUrl: req.file.location, createdAt: new Date().toISOString(),
-        };
-        
-        const command = new PutCommand({ TableName: PRODUCT_TABLE, Item: productItem });
-        await docClient.send(command);
-        res.status(201).json({ success: true, message: "Product added successfully", product: productItem });
-    } catch (error) {
-        console.error("❌ Error adding product:", error);
-        res.status(500).json({ success: false, error: error.message || "Failed to add product." });
-    }
-});
-
-// --- ADMIN: VIEW TABLES ---
-const createScanHandler = (tableName) => async (req, res) => {
-    try {
-        const command = new ScanCommand({ TableName: tableName });
+        const command = new ScanCommand({ TableName: ORDERS_TABLE });
         const { Items } = await docClient.send(command);
         res.json({ success: true, data: Items || [] });
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error("❌ Fetch admin orders failed:", error);
+        res.status(500).json({ success: false, error: "Failed to fetch orders" });
     }
+});
+// --- ADMIN: REAL-TIME ANALYTICS ---
+app.get("/api/admin/dashboard-stats", authenticateToken, async (req, res) => {
+    try {
+        // 1. Fetch live data from your tables
+        const [ordersRes, contactsRes] = await Promise.all([
+            docClient.send(new ScanCommand({ TableName: ORDERS_TABLE })),
+            docClient.send(new ScanCommand({ TableName: CONTACT_TABLE }))
+        ]);
+
+        const allOrders = ordersRes.Items || [];
+        const allContacts = contactsRes.Items || [];
+        
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date().toISOString().split('T')[0];
+
+        // 2. Aggregate Real Statistics
+        // Revenue is the sum of totalAmount from all entries in the Orders table
+        const totalRevenue = allOrders.reduce((sum, order) => sum + (Number(order.totalAmount) || 0), 0);
+        
+        // New Orders (New Inquiries label) counts orders placed today
+        const todayOrdersCount = allOrders.filter(order => order.createdAt && order.createdAt.startsWith(today)).length;
+        
+        // Pending Orders are those with "Processing" status
+        const pendingOrdersCount = allOrders.filter(order => order.status === "Processing").length;
+
+        // 3. Prepare Chart Data (Grouped by Date for the last 7 days)
+        const statsMap = {};
+        const last7Days = [...Array(7)].map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            return d.toISOString().split('T')[0];
+        }).reverse();
+
+        // Initialize 7-day window with 0s to avoid gaps in the graph
+        last7Days.forEach(date => {
+            statsMap[date] = { date, orders: 0, inquiries: 0 };
+        });
+
+        // Fill map with real database counts for the line chart
+        allOrders.forEach(order => {
+            const date = order.createdAt?.split('T')[0];
+            if (statsMap[date]) statsMap[date].orders++;
+        });
+        
+        // Tracking actual Contact Message inquiries for the second line
+        allContacts.forEach(contact => {
+            const date = contact.createdAt?.split('T')[0];
+            if (statsMap[date]) statsMap[date].inquiries++;
+        });
+
+        res.json({
+            success: true,
+            stats: { 
+                totalRevenue, 
+                newOrdersToday: todayOrdersCount, 
+                pendingOrders: pendingOrdersCount 
+            },
+            chartData: Object.values(statsMap)
+        });
+    } catch (error) {
+        console.error("❌ Stats fetch failed:", error);
+        res.status(500).json({ success: false, error: "Failed to fetch dashboard data" });
+    }
+});
+
+// --- ADMIN: UPDATE ORDER STATUS (SYSTEM PRODUCTS ONLY) ---
+app.put("/api/admin/orders/:orderId/status", authenticateToken, async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+
+        const { Item: order } = await docClient.send(new GetCommand({ 
+            TableName: ORDERS_TABLE, 
+            Key: { orderId } 
+        }));
+
+        if (!order) return res.status(404).json({ error: "Order not found" });
+
+        // CHECK OWNERSHIP: Does this order contain an item with NO dealerId (Admin product)?
+        const isSystemOrder = order.items.some(item => item.dealerId === null || item.dealerId === undefined);
+
+        if (!isSystemOrder) {
+            return res.status(403).json({ 
+                success: false, 
+                error: "Access Denied: This order belongs to a third-party vendor." 
+            });
+        }
+
+        await docClient.send(new UpdateCommand({
+            TableName: ORDERS_TABLE,
+            Key: { orderId },
+            UpdateExpression: "SET #s = :s",
+            ExpressionAttributeNames: { "#s": "status" },
+            ExpressionAttributeValues: { ":s": status }
+        }));
+
+        res.json({ success: true, message: "Admin order status updated." });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update status" });
+    }
+});
+// --- ADMIN: PRODUCT & USER MANAGEMENT ---
+app.post("/api/admin/add-user", authenticateToken, async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: "Username and password are required" });
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await docClient.send(new PutCommand({
+            TableName: ADMIN_TABLE,
+            Item: { username: username.toLowerCase(), password: hashedPassword },
+            ConditionExpression: "attribute_not_exists(username)",
+        }));
+        res.status(201).json({ success: true, message: `Admin user '${username}' created.` });
+    } catch (error) {
+        if (error.name === 'ConditionalCheckFailedException') return res.status(409).json({ error: "Username already exists." });
+        res.status(500).json({ error: "Failed to create admin user." });
+    }
+});
+
+app.post("/api/admin/products", authenticateToken, upload.single("image"), async (req, res) => {
+    try {
+        const { name, price, description, category, brand } = req.body;
+        if (!name || !price || !req.file) return res.status(400).json({ error: "Missing required fields." });
+        
+        const productItem = {
+            productId: Date.now().toString(), name, price: Number(price),
+            description: description || "", category: category || "", brand: brand || "",
+            imageUrl: req.file.location, createdAt: new Date().toISOString(),
+        };
+        await docClient.send(new PutCommand({ TableName: PRODUCT_TABLE, Item: productItem }));
+        res.status(201).json({ success: true, product: productItem });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to add product." });
+    }
+});
+
+// --- ADMIN: BATCH DELETE ---
+app.post("/api/admin/batch-delete", authenticateToken, async (req, res) => {
+    const { tableName, ids } = req.body;
+    if (!tableName || !ids || !Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: "Table name and a non-empty array of IDs are required." });
+    }
+
+    const keyMap = { 'Products': 'productId', 'vendorproduct': 'productId', 'Admins': 'username', 'Dealers': 'dealerId' };
+    const primaryKey = keyMap[tableName] || 'id';
+
+    const tableMap = {
+        'Products': PRODUCT_TABLE, 'Dealers': DEALER_TABLE, 'Admins': ADMIN_TABLE,
+        'Contact Messages': CONTACT_TABLE, 'Media Queries': MEDIA_QUERIES_TABLE, 'Product Surveys': PRODUCT_SURVEY_TABLE,
+    };
+    const dynamoTableName = tableMap[tableName];
+    if (!dynamoTableName) return res.status(400).json({ error: "Invalid table name specified." });
+
+    const deleteRequests = ids.map(id => ({ DeleteRequest: { Key: { [primaryKey]: id } } }));
+
+    try {
+        await docClient.send(new BatchWriteCommand({ RequestItems: { [dynamoTableName]: deleteRequests } }));
+        res.json({ success: true, message: `${ids.length} items deleted successfully.` });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete items." });
+    }
+});
+
+// --- ADMIN: GENERIC CRUD HANDLERS ---
+const createScanHandler = (tableName) => async (req, res) => {
+    try {
+        const { Items } = await docClient.send(new ScanCommand({ TableName: tableName }));
+        res.json({ success: true, data: Items || [] });
+    } catch (error) { res.status(500).json({ error: error.message }); }
+};
+
+const createDeleteHandler = (tableName, keyName) => async (req, res) => {
+    try {
+        await docClient.send(new DeleteCommand({ TableName: tableName, Key: { [keyName]: req.params[keyName] } }));
+        res.json({ success: true, message: "Item deleted successfully." });
+    } catch (error) { res.status(500).json({ error: error.message }); }
+};
+
+const createUpdateHandler = (tableName, keyName) => async (req, res) => {
+    try {
+        const updatedItem = { ...req.body, [keyName]: req.params[keyName] };
+        await docClient.send(new PutCommand({ TableName: tableName, Item: updatedItem }));
+        res.json({ success: true, message: "Item updated successfully." });
+    } catch (error) { res.status(500).json({ error: error.message }); }
 };
 
 app.get("/api/admin/contacts", authenticateToken, createScanHandler(CONTACT_TABLE));
@@ -190,228 +349,230 @@ app.get("/api/admin/product-surveys", authenticateToken, createScanHandler(PRODU
 app.get("/api/admin/products", authenticateToken, createScanHandler(PRODUCT_TABLE));
 app.get("/api/admin/admins", authenticateToken, async (req, res) => {
     try {
-        const command = new ScanCommand({ TableName: ADMIN_TABLE });
-        const { Items } = await docClient.send(command);
-        const sanitizedAdmins = (Items || []).map(admin => {
-            delete admin.password;
-            return admin;
-        });
-        res.json({ success: true, data: sanitizedAdmins });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
+        const { Items } = await docClient.send(new ScanCommand({ TableName: ADMIN_TABLE }));
+        const sanitized = (Items || []).map(({password, ...rest}) => rest);
+        res.json({ success: true, data: sanitized });
+    } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
-// Add this new route to server.js batch delete
-
-app.post("/api/admin/batch-delete", authenticateToken, async (req, res) => {
-    const { tableName, ids } = req.body;
-
-    if (!tableName || !ids || !Array.isArray(ids) || ids.length === 0) {
-        return res.status(400).json({ success: false, error: "Table name and a non-empty array of IDs are required." });
-    }
-
-    // A map to determine the primary key for each table
-    const keyMap = {
-        'Products': 'productId',
-        'vendorproduct': 'productId',
-        'Admins': 'username',
-        'Dealers': 'dealerId',
-        // All other tables below use 'id' as the primary key
-    };
-    const primaryKey = keyMap[tableName] || 'id';
-
-    // A map to get the correct table name from the display name
-    const tableMap = {
-        'Products': PRODUCT_TABLE,
-        'Dealers': DEALER_TABLE,
-        'Admins': ADMIN_TABLE,
-        'Contact Messages': CONTACT_TABLE,
-        'Media Queries': MEDIA_QUERIES_TABLE,
-        'Product Surveys': PRODUCT_SURVEY_TABLE,
-    };
-    const dynamoTableName = tableMap[tableName];
-
-    if (!dynamoTableName) {
-        return res.status(400).json({ success: false, error: "Invalid table name specified." });
-    }
-
-    // Format the requests for BatchWriteCommand
-    const deleteRequests = ids.map(id => ({
-        DeleteRequest: {
-            Key: { [primaryKey]: id },
-        },
-    }));
-
-    try {
-        const command = new BatchWriteCommand({
-            RequestItems: {
-                [dynamoTableName]: deleteRequests,
-            },
-        });
-        await docClient.send(command);
-        res.json({ success: true, message: `${ids.length} items deleted successfully.` });
-    } catch (error) {
-        console.error("Batch delete error:", error);
-        res.status(500).json({ success: false, error: "Failed to delete items." });
-    }
-});
-// --- ADMIN: DELETE & UPDATE ROUTES ---
-const createDeleteHandler = (tableName, keyName) => async (req, res) => {
-    try {
-        const command = new DeleteCommand({ TableName: tableName, Key: { [keyName]: req.params[keyName] } });
-        await docClient.send(command);
-        res.json({ success: true, message: "Item deleted successfully." });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-};
-
-const createUpdateHandler = (tableName, keyName) => async (req, res) => {
-    try {
-        const updatedItem = { ...req.body, [keyName]: req.params[keyName] };
-        const command = new PutCommand({ TableName: tableName, Item: updatedItem });
-        await docClient.send(command);
-        res.json({ success: true, message: "Item updated successfully." });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-};
-
-// Contacts
 app.delete("/api/admin/contacts/:id", authenticateToken, createDeleteHandler(CONTACT_TABLE, "id"));
 app.put("/api/admin/contacts/:id", authenticateToken, createUpdateHandler(CONTACT_TABLE, "id"));
-// Dealers
 app.delete("/api/admin/dealers/:dealerId", authenticateToken, createDeleteHandler(DEALER_TABLE, "dealerId"));
 app.put("/api/admin/dealers/:dealerId", authenticateToken, createUpdateHandler(DEALER_TABLE, "dealerId"));
-// Media Queries
 app.delete("/api/admin/media-queries/:id", authenticateToken, createDeleteHandler(MEDIA_QUERIES_TABLE, "id"));
 app.put("/api/admin/media-queries/:id", authenticateToken, createUpdateHandler(MEDIA_QUERIES_TABLE, "id"));
-// Product Surveys
 app.delete("/api/admin/product-surveys/:id", authenticateToken, createDeleteHandler(PRODUCT_SURVEY_TABLE, "id"));
 app.put("/api/admin/product-surveys/:id", authenticateToken, createUpdateHandler(PRODUCT_SURVEY_TABLE, "id"));
-// Admins
 app.delete("/api/admin/admins/:username", authenticateToken, createDeleteHandler(ADMIN_TABLE, "username"));
-// Products
 app.delete("/api/admin/products/:productId", authenticateToken, createDeleteHandler(PRODUCT_TABLE, "productId"));
 app.put("/api/admin/products/:productId", authenticateToken, createUpdateHandler(PRODUCT_TABLE, "productId"));
+// =============================================================================
+//                               VENDOR / DEALER ROUTES
+// =============================================================================
 
+app.post("/api/dealers", async (req, res) => {
+    const { name, email, phone, company, address } = req.body;
+    if (!name || !email || !phone) return res.status(400).json({ error: "Missing required fields" });
+    const item = { dealerId: Date.now().toString(), name, email, phone, company: company || "", address: address || "", createdAt: new Date().toISOString() };
+    try {
+        await docClient.send(new PutCommand({ TableName: DEALER_TABLE, Item: item }));
+        res.json({ success: true, dealerId: item.dealerId });
+    } catch (error) { res.status(500).json({ error: "Failed to register dealer" }); }
+});
 
-// ================= PUBLIC ROUTES =================
-// Add this new route in server.js, right after your GET /products route
+app.post("/api/dealers/login", async (req, res) => {
+    const { email, phone } = req.body;
+    if (!email || !phone) return res.status(400).json({ error: "Email and Phone are required." });
+    try {
+        const { Items } = await docClient.send(new ScanCommand({
+            TableName: DEALER_TABLE,
+            FilterExpression: "email = :email",
+            ExpressionAttributeValues: { ":email": email.toLowerCase() }
+        }));
+        if (Items.length === 0 || Items[0].phone !== phone) return res.status(401).json({ error: "Invalid credentials." });
+        res.json({ success: true, dealerId: Items[0].dealerId });
+    } catch (error) { res.status(500).json({ error: "Server error during login." }); }
+});
 
-// --- GET SINGLE PRODUCT BY ID ---
-// In server.js, replace your existing "/products/:productId" route with this one.
+app.get("/api/dealers/:dealerId", async (req, res) => {
+    try {
+        const { Item } = await docClient.send(new GetCommand({ TableName: DEALER_TABLE, Key: { dealerId: req.params.dealerId } }));
+        Item ? res.json({ success: true, dealer: Item }) : res.status(404).json({ error: "Dealer not found" });
+    } catch (error) { res.status(500).json({ error: "Failed to fetch dealer" }); }
+});
+
+// --- VENDOR PRODUCT MANAGEMENT ---
+app.post("/api/dealer/products", vendorUpload.single("image"), async (req, res) => {
+    try {
+        const { dealerId, name, price, description, category, brand } = req.body;
+        if (!dealerId || !name || !price || !req.file) return res.status(400).json({ error: "Missing required fields." });
+        const productItem = {
+            productId: Date.now().toString(), dealerId, name, brand, category, description,
+            price: Number(price), imageUrl: req.file.location, createdAt: new Date().toISOString(),
+        };
+        await docClient.send(new PutCommand({ TableName: VENDOR_PRODUCT_TABLE, Item: productItem }));
+        res.status(201).json({ success: true, product: productItem });
+    } catch (error) { res.status(500).json({ error: "Failed to upload product." }); }
+});
+
+app.get("/api/dealer/products/:dealerId", async (req, res) => {
+    try {
+        const { Items } = await docClient.send(new ScanCommand({
+            TableName: VENDOR_PRODUCT_TABLE,
+            FilterExpression: "dealerId = :dealerId",
+            ExpressionAttributeValues: { ":dealerId": req.params.dealerId },
+        }));
+        res.json({ success: true, products: Items || [] });
+    } catch (error) { res.status(500).json({ error: "Failed to fetch products." }); }
+});
+
+app.put("/api/dealer/products/:productId", async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const updatedProductData = { ...req.body, productId, price: Number(req.body.price) };
+        if (isNaN(updatedProductData.price)) return res.status(400).json({ error: "Invalid price format." });
+        await docClient.send(new PutCommand({ TableName: VENDOR_PRODUCT_TABLE, Item: updatedProductData }));
+        res.json({ success: true, product: updatedProductData });
+    } catch (error) { res.status(500).json({ error: "Failed to update product." }); }
+});
+
+app.delete("/api/dealer/products/:productId", async (req, res) => {
+    try {
+        await docClient.send(new DeleteCommand({ TableName: VENDOR_PRODUCT_TABLE, Key: { productId: req.params.productId } }));
+        res.json({ success: true, message: "Product deleted successfully." });
+    } catch (error) { res.status(500).json({ error: "Failed to delete product." }); }
+});
+
+// --- VENDOR ORDER MANAGEMENT ---
+app.get("/api/vendor/orders/:dealerId", async (req, res) => {
+    try {
+        const { Items } = await docClient.send(new ScanCommand({ TableName: ORDERS_TABLE }));
+        const vendorOrders = (Items || []).filter(order => order.items?.some(item => item.dealerId === req.params.dealerId));
+        res.json({ success: true, orders: vendorOrders });
+    } catch (error) { res.status(500).json({ error: "Failed to fetch vendor orders" }); }
+});
+
+// server.js - Update your vendor status route
+app.put("/api/vendor/orders/:orderId/status", async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+        
+        // Use the ID sent from the frontend header if req.vendorId is missing
+        const vendorId = req.vendorId || req.headers["x-dealer-id"]; 
+
+        if (!vendorId) return res.status(401).json({ error: "Vendor ID missing" });
+
+        const allowedStatuses = ["Processing", "Shipped", "Out for Delivery", "Delivered"];
+        if (!allowedStatuses.includes(status)) return res.status(400).json({ error: "Invalid status" });
+
+        const { Item: order } = await docClient.send(new GetCommand({ 
+            TableName: ORDERS_TABLE, 
+            Key: { orderId } 
+        }));
+
+        if (!order) return res.status(404).json({ error: "Order not found" });
+
+        // Force string comparison to avoid type mismatches
+        const isOwner = order.items.some(item => String(item.dealerId) === String(vendorId));
+
+        if (!isOwner) {
+            return res.status(403).json({ 
+                success: false, 
+                error: "Access Denied: You do not own any products in this order." 
+            });
+        }
+
+        await docClient.send(new UpdateCommand({
+            TableName: ORDERS_TABLE,
+            Key: { orderId },
+            UpdateExpression: "SET #s = :s",
+            ExpressionAttributeNames: { "#s": "status" },
+            ExpressionAttributeValues: { ":s": status }
+        }));
+
+        res.json({ success: true, message: "Status updated!" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update status" });
+    }
+});
+// =============================================================================
+//                               PUBLIC ROUTES
+// =============================================================================
+
+const formatProduct = (item) => ({
+    id: item.productId, name: item.name, price: item.price,
+    img: item.imageUrl, category: item.category, brand: item.brand, description: item.description
+});
+
+// --- server.js ---
+app.get("/api/products", async (req, res) => {
+    try {
+        const adminScan = new ScanCommand({ TableName: PRODUCT_TABLE });
+        const vendorScan = new ScanCommand({ TableName: VENDOR_PRODUCT_TABLE });
+
+        const [adminRes, vendorRes] = await Promise.all([
+            docClient.send(adminScan),
+            docClient.send(vendorScan)
+        ]);
+
+        const formattedItems = [
+            ...(adminRes.Items || []).map(item => ({
+                id: item.productId,
+                name: item.name,
+                price: item.price,
+                img: item.imageUrl,
+                category: item.category,
+                brand: item.brand,
+                dealerId: null // Admin items have no dealerId
+            })),
+            ...(vendorRes.Items || []).map(item => ({
+                id: item.productId,
+                name: item.name,
+                price: item.price,
+                img: item.imageUrl,
+                category: item.category,
+                brand: item.brand,
+                dealerId: item.dealerId // ✅ MUST INCLUDE THIS
+            }))
+        ];
+
+        res.json({ success: true, items: formattedItems });
+    } catch (error) {
+        res.status(500).json({ success: false, error: "Failed to fetch products" });
+    }
+});
 
 app.get("/api/products/:productId", async (req, res) => {
     try {
         const { productId } = req.params;
-
-        // Helper function to format the DB item for the frontend
-        const formatProduct = (item) => ({
-            id: item.productId,
-            name: item.name,
-            price: item.price,
-            img: item.imageUrl,
-            category: item.category,
-            brand: item.brand,
-            description: item.description
-        });
-
-        // 1. First, try to get the product from the main (admin) product table
-        const adminProductCommand = new GetCommand({
-            TableName: PRODUCT_TABLE,
-            Key: { productId },
-        });
-        let { Item } = await docClient.send(adminProductCommand);
-
-        // 2. If it's not found in the admin table, try the vendor table
+        let { Item } = await docClient.send(new GetCommand({ TableName: PRODUCT_TABLE, Key: { productId } }));
         if (!Item) {
-            const vendorProductCommand = new GetCommand({
-                TableName: VENDOR_PRODUCT_TABLE,
-                Key: { productId },
-            });
-            const vendorResult = await docClient.send(vendorProductCommand);
-            Item = vendorResult.Item; // This will either be the item or undefined
+            const vendorRes = await docClient.send(new GetCommand({ TableName: VENDOR_PRODUCT_TABLE, Key: { productId } }));
+            Item = vendorRes.Item;
         }
-
-        // 3. If an item was found in either table, format and return it
-        if (Item) {
-            res.json({ success: true, product: formatProduct(Item) });
-        } else {
-            // 4. If not found in either, return a 404 error
-            res.status(404).json({ success: false, error: "Product not found" });
-        }
-    } catch (error) {
-        console.error("Error fetching single product:", error);
-        res.status(500).json({ success: false, error: "Failed to fetch product" });
-    }
+        Item ? res.json({ success: true, product: formatProduct(Item) }) : res.status(404).json({ error: "Product not found" });
+    } catch (error) { res.status(500).json({ error: "Failed to fetch product" }); }
 });
-// --- GET ALL PRODUCTS ---
-// app.get("/products", async (req, res) => {
-//     try {
-//         const command = new ScanCommand({ TableName: PRODUCT_TABLE });
-//         const { Items } = await docClient.send(command);
-//         const products = (Items || []).map(item => ({
-//             id: item.productId, name: item.name, price: item.price, img: item.imageUrl,
-//             category: item.category, brand: item.brand, description: item.description,
-//         }));
-//         res.json({ success: true, items: products });
-//     } catch (error) {
-//         res.status(500).json({ success: false, error: "Failed to fetch products" });
-//     }
-// });
 
-// In server.js, replace your existing "/products" route with this one.
-
-app.get("/api/products", async (req, res) => {
-    try {
-        // 1. Create scan commands for both tables
-        const adminProductsCommand = new ScanCommand({ TableName: PRODUCT_TABLE });
-        const vendorProductsCommand = new ScanCommand({ TableName: VENDOR_PRODUCT_TABLE });
-
-        // 2. Run both scans in parallel for better performance
-        const [adminProductsResult, vendorProductsResult] = await Promise.all([
-            docClient.send(adminProductsCommand),
-            docClient.send(vendorProductsCommand)
-        ]);
-
-        // 3. Combine the items from both results into a single array
-        const allItems = [
-            ...(adminProductsResult.Items || []),
-            ...(vendorProductsResult.Items || [])
-        ];
-
-        // 4. Map the combined list into the format your frontend expects
-        const formattedProducts = allItems.map(item => ({
-            id: item.productId,
-            name: item.name,
-            price: item.price,
-            img: item.imageUrl,
-            category: item.category,
-            brand: item.brand,
-            description: item.description,
-        }));
-
-        res.json({ success: true, items: formattedProducts });
-
-    } catch (error) {
-        console.error("❌ Error fetching all products:", error);
-        res.status(500).json({ success: false, error: "Failed to fetch products" });
-    }
-});
-// --- POST ROUTES ---
 app.post("/api/contact", async (req, res) => {
     const { name, email, message } = req.body;
-    if (!name || !email || !message) return res.status(400).json({ success: false, error: "Missing required fields" });
+    if (!name || !email || !message) return res.status(400).json({ error: "Missing fields" });
     const item = { id: Date.now().toString(), name, email, message, createdAt: new Date().toISOString() };
-    const command = new PutCommand({ TableName: CONTACT_TABLE, Item: item });
     try {
-        await docClient.send(command);
-        res.json({ success: true, message: "Message saved", data: item });
-    } catch (error) {
-        res.status(500).json({ success: false, error: "Failed to save message" });
-    }
+        await docClient.send(new PutCommand({ TableName: CONTACT_TABLE, Item: item }));
+        res.json({ success: true, data: item });
+    } catch (error) { res.status(500).json({ error: "Failed to save message" }); }
+});
+
+app.post("/api/product-survey", async (req, res) => {
+    const { productName, rating, feedback } = req.body;
+    if (!productName || !rating) return res.status(400).json({ error: "Missing required fields" });
+    const item = { id: Date.now().toString(), productName, rating, feedback: feedback || "", createdAt: new Date().toISOString() };
+    try {
+        await docClient.send(new PutCommand({ TableName: PRODUCT_SURVEY_TABLE, Item: item }));
+        res.status(201).json({ success: true, message: "Survey saved" });
+    } catch (error) { res.status(500).json({ error: "Failed to save survey" }); }
 });
 
 app.post("/api/business-orders", async (req, res) => {
@@ -427,42 +588,6 @@ app.post("/api/business-orders", async (req, res) => {
     }
 });
 
-app.post("/api/product-survey", async (req, res) => {
-    // Destructure `productName` from the request body to match the frontend
-    const { productName, rating, feedback } = req.body;
-
-    // Validate that required fields are present
-    if (!productName || !rating) {
-        return res.status(400).json({ success: false, message: "Missing required fields: productName and rating are required." });
-    }
-
-    // Prepare the item to be saved in DynamoDB
-    const item = {
-        id: Date.now().toString(), // Using timestamp as a simple unique ID
-        productName: productName,  // Using productName from the request
-        rating: rating,
-        feedback: feedback || "", // Use feedback if provided, otherwise empty string
-        createdAt: new Date().toISOString(),
-    };
-
-    // Create the DynamoDB PutCommand
-    const command = new PutCommand({
-        TableName: PRODUCT_SURVEY_TABLE,
-        Item: item,
-    });
-
-    try {
-        // Execute the command to save the item
-        await docClient.send(command);
-        console.log("Survey saved successfully:", item);
-        res.status(201).json({ success: true, message: "Survey saved successfully" });
-    } catch (error) {
-        console.error("Failed to save survey to DynamoDB:", error);
-        res.status(500).json({ success: false, message: "Internal server error: Failed to save survey." });
-    }
-});
-
-
 app.post("/api/media-queries", async (req, res) => {
     const { name, email, query } = req.body;
     if (!name || !email || !query) return res.status(400).json({ success: false, error: "Missing required fields" });
@@ -476,186 +601,118 @@ app.post("/api/media-queries", async (req, res) => {
     }
 });
 
-app.post("/api/dealers", async (req, res) => {
-    const { name, email, phone, company, address } = req.body;
-    if (!name || !email || !phone) return res.status(400).json({ success: false, error: "Missing required fields" });
-    const item = { dealerId: Date.now().toString(), name, email, phone, company: company || "", address: address || "", createdAt: new Date().toISOString() };
-    const command = new PutCommand({ TableName: DEALER_TABLE, Item: item });
+// =============================================================================
+//                             ORDER & SEARCH LOGIC
+// =============================================================================
+app.post("/api/orders", async (req, res) => {
     try {
-        await docClient.send(command);
-        res.json({ success: true, message: "Dealer registered successfully", dealerId: item.dealerId });
-    } catch (error) {
-        res.status(500).json({ success: false, error: "Failed to register dealer" });
-    }
-});
-
-// Add this to server.js
-
-// In server.js, replace the old /dealers/login route
-
-app.post("/api/dealers/login", async (req, res) => {
-    const { email, phone } = req.body; // Expect email and phone
-
-    if (!email || !phone) {
-        return res.status(400).json({ success: false, error: "Email and Phone Number are required." });
-    }
-
-    try {
-        // Find the dealer by email
-        const params = {
-            TableName: DEALER_TABLE,
-            FilterExpression: "email = :email",
-            ExpressionAttributeValues: { ":email": email.toLowerCase() }
-        };
-
-        const { Items } = await docClient.send(new ScanCommand(params));
-
-        if (Items.length === 0) {
-            return res.status(404).json({ success: false, error: "No dealer found with that email." });
-        }
-
-        const dealer = Items[0];
-
-        // Now, check if the provided phone number matches the one in the database
-        if (dealer.phone === phone) {
-            // Successful login, return the dealerId to be stored on the client
-            res.json({ success: true, message: "Login successful!", dealerId: dealer.dealerId });
-        } else {
-            // Incorrect credentials
-            res.status(401).json({ success: false, error: "Invalid email or phone number." });
-        }
-
-    } catch (error) {
-        console.error("Dealer login error:", error);
-        res.status(500).json({ success: false, error: "Server error during login." });
-    }
-});
-// Add this to your server.js file
-
-app.get("/api/dealers/:dealerId", async (req, res) => {
-    try {
-        const { dealerId } = req.params;
-        const command = new GetCommand({
-            TableName: DEALER_TABLE,
-            Key: { dealerId },
-        });
-
-        const { Item } = await docClient.send(command);
-
-        if (Item) {
-            res.json({ success: true, dealer: Item });
-        } else {
-            res.status(404).json({ success: false, error: "Dealer not found" });
-        }
-    } catch (error) {
-        console.error("Error fetching dealer details:", error);
-        res.status(500).json({ success: false, error: "Failed to fetch dealer details" });
-    }
-});
-
-// --- (NEW) VENDOR: ADD PRODUCT ---
-app.post("/api/dealer/products", vendorUpload.single("image"), async (req, res) => {
-    try {
-        const { dealerId, name, price, description, category, brand } = req.body;
-        if (!dealerId || !name || !price || !req.file) {
-            return res.status(400).json({ success: false, error: "Missing required fields." });
-        }
+        const { userId, items, totalAmount, shipping, paymentId } = req.body;
         
-        const productItem = {
-            productId: Date.now().toString(),
-            dealerId, name, brand, category, description,
-            price: Number(price),
-            imageUrl: req.file.location, // The URL from S3
-            createdAt: new Date().toISOString(),
+        // 1. Validate incoming data
+        if (!userId || !items || !items.length || !totalAmount || !paymentId) {
+            return res.status(400).json({ error: "Missing required order fields." });
+        }
+
+        const orderId = Date.now().toString();
+        const order = {
+            orderId,
+            userId,
+            // Ensure every item carries its dealerId for vendor filtering
+            items: items.map(item => ({
+                productId: item.productId || item.id,
+                dealerId: item.dealerId || null, 
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                imageUrl: item.imageUrl || item.img
+            })),
+            totalAmount,
+            shipping,
+            paymentId,
+            status: "Processing", 
+            createdAt: new Date().toISOString()
         };
 
-        // Save to the new vendor product table
-        const command = new PutCommand({ TableName: VENDOR_PRODUCT_TABLE, Item: productItem });
-        await docClient.send(command);
+        // 2. SAVE TO DYNAMODB
+        await docClient.send(new PutCommand({ TableName: ORDERS_TABLE, Item: order }));
 
-        res.status(201).json({ success: true, message: "Product uploaded successfully by dealer", product: productItem });
+        // 3. 📩 AWS SES VENDOR NOTIFICATIONS
+        const uniqueVendors = [...new Set(order.items.map(i => i.dealerId).filter(id => id))];
 
-    } catch (error) {
-        console.error("❌ Error adding vendor product:", error);
-        res.status(500).json({ success: false, error: "Failed to upload product." });
-    }
-})
+        for (const dealerId of uniqueVendors) {
+            try {
+                // Fetch vendor email from your DEALER_TABLE
+                const { Item: vendor } = await docClient.send(new GetCommand({
+                    TableName: DEALER_TABLE,
+                    Key: { dealerId }
+                }));
 
-// Add these three routes to server.js
+                if (vendor?.email) {
+                    const vendorItems = order.items.filter(i => i.dealerId === dealerId);
+                    const itemsHtml = vendorItems.map(i => `<li>${i.name} (x${i.quantity})</li>`).join('');
 
-// --- GET ALL PRODUCTS FOR A SPECIFIC DEALER ---
-app.get("/api/dealer/products/:dealerId", async (req, res) => {
-    try {
-        const { dealerId } = req.params;
-        const command = new ScanCommand({
-            TableName: VENDOR_PRODUCT_TABLE,
-            FilterExpression: "dealerId = :dealerId",
-            ExpressionAttributeValues: { ":dealerId": dealerId },
-        });
-
-        const { Items } = await docClient.send(command);
-        res.json({ success: true, products: Items || [] });
-
-    } catch (error) {
-        console.error("Error fetching dealer products:", error);
-        res.status(500).json({ success: false, error: "Failed to fetch products." });
-    }
-});
-
-// --- DELETE A VENDOR'S PRODUCT ---
-app.delete("/api/dealer/products/:productId", async (req, res) => {
-    try {
-        const { productId } = req.params;
-        // In a real app, you'd also check if the logged-in dealer owns this product
-        const command = new DeleteCommand({
-            TableName: VENDOR_PRODUCT_TABLE,
-            Key: { productId },
-        });
-
-        await docClient.send(command);
-        res.json({ success: true, message: "Product deleted successfully." });
-
-    } catch (error) {
-        console.error("Error deleting dealer product:", error);
-        res.status(500).json({ success: false, error: "Failed to delete product." });
-    }
-});
-
-// --- UPDATE A VENDOR'S PRODUCT ---
-// In server.js, replace the existing PUT /dealer/products/:productId route
-
-app.put("/api/dealer/products/:productId", async (req, res) => {
-    try {
-        const { productId } = req.params;
-        const updatedProductData = req.body;
-
-        // --- (FIX) ---
-        // Ensure price is converted to a Number before saving
-        if (updatedProductData.price !== undefined) {
-            const priceNumber = Number(updatedProductData.price);
-            if (isNaN(priceNumber)) {
-                // If the price is not a valid number, reject the request
-                return res.status(400).json({ success: false, error: "Invalid price format." });
+                    const params = {
+                        Source: process.env.SYSTEM_EMAIL, // Must be verified in SES
+                        Destination: { ToAddresses: [vendor.email] },
+                        Message: {
+                            Subject: { Data: `Action Required: New Order #${orderId}` },
+                            Body: {
+                                Html: { 
+                                    Data: `<h3>New Order Received</h3><p>Fulfill these items: <ul>${itemsHtml}</ul></p>` 
+                                }
+                            }
+                        }
+                    };
+                    await sesClient.send(new SendEmailCommand(params));
+                }
+            } catch (emailErr) {
+                console.error(`Email failed for vendor ${dealerId}:`, emailErr);
             }
-            updatedProductData.price = priceNumber;
         }
-        // ---------------
 
-        // Ensure the primary key is correctly set
-        updatedProductData.productId = productId;
-        
-        const command = new PutCommand({
-            TableName: VENDOR_PRODUCT_TABLE,
-            Item: updatedProductData,
-        });
+        // 4. Trigger "Order Success" in the frontend
+        res.status(201).json({ success: true, order });
 
-        await docClient.send(command);
-        res.json({ success: true, message: "Product updated successfully.", product: updatedProductData });
-
-    } catch (error) {
-        console.error("Error updating dealer product:", error);
-        res.status(500).json({ success: false, error: "Failed to update product." });
+    } catch (error) { 
+        res.status(500).json({ error: "Order placement failed." }); 
     }
+});
+
+app.get("/api/orders", async (req, res) => {
+    try {
+        const { userId } = req.query;
+        if (!userId) return res.status(400).json({ error: "UserId required" });
+        const { Items } = await docClient.send(new ScanCommand({
+            TableName: ORDERS_TABLE,
+            FilterExpression: "userId = :uid",
+            ExpressionAttributeValues: { ":uid": userId }
+        }));
+        res.json(Items || []);
+    } catch (error) { res.status(500).json({ error: "Failed to fetch orders" }); }
+});
+
+app.get("/api/search", async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q || q.trim().length < 2) return res.json([]);
+        const keyword = q.toLowerCase();
+
+        const [adminRes, vendorRes] = await Promise.all([
+            docClient.send(new ScanCommand({ TableName: PRODUCT_TABLE })),
+            docClient.send(new ScanCommand({ TableName: VENDOR_PRODUCT_TABLE }))
+        ]);
+
+        const results = [...(adminRes.Items || []), ...(vendorRes.Items || [])]
+            .filter(item => 
+                item.name?.toLowerCase().includes(keyword) || 
+                item.brand?.toLowerCase().includes(keyword) || 
+                item.category?.toLowerCase().includes(keyword)
+            )
+            .slice(0, 8)
+            .map(item => ({ id: item.productId, name: item.name, price: item.price, img: item.imageUrl }));
+
+        res.json(results);
+    } catch (error) { res.status(500).json([]); }
 });
 // ================= START SERVER =================
 const PORT = process.env.PORT || 5001;

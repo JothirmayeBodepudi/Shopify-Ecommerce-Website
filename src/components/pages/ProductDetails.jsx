@@ -1,115 +1,205 @@
-import React, { useState, useEffect } from "react"; // (NEW) Import hooks
-import { useParams } from "react-router-dom";
-import axios from "axios"; // (NEW) Import axios
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Navbar from "../Navbar";
 import { useCart } from "../context/CartContext";
 import "../styles/ProductDetails.css";
-// import { products } from "../data/products"; // (DELETED) No longer using static data
+import Footer from "../Footer";
 
-const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001';
+const API_URL = "http://localhost:5001";
+
+/* ================= Wishlist Helpers ================= */
+
+const getWishlist = () =>
+  JSON.parse(localStorage.getItem("wishlist")) || [];
+
+const isInWishlist = (productId) =>
+  getWishlist().some((item) => item.productId === productId);
+
+/* =================================================== */
 
 export default function ProductDetails() {
-  const { id } = useParams(); // id comes from the URL
-  const { addToCart } = useCart();
-  
-  // (NEW) State for the product, loading, and error
-  const [product, setProduct] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  const { id } = useParams(); // URL param
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
 
-  // (NEW) useEffect to fetch the product data when the component loads
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setIsLoading(true);
-        // Use the new server endpoint
-        const response = await axios.get(`/api/products/${id}`);
-        if (response.data.success) {
-          setProduct(response.data.product);
-        } else {
-          setError(response.data.error);
-        }
-      } catch (err) {
-        setError("Product not found or an error occurred.");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const [product, setProduct] = useState(null);
+  const [productId, setProductId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [wishlisted, setWishlisted] = useState(false);
 
-    if (id) {
-      fetchProduct();
-    }
-  }, [id]); // This effect re-runs if the product id in the URL changes
+  /* ================= FETCH PRODUCT ================= */
 
-  const handleAddToCart = (item, qty = 1) => {
-    addToCart({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      img: item.img,
-      quantity: qty,
-    });
-  };
-  
-  // (NEW) Render loading state
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const res = await axios.get(
+          `${API_URL}/api/products/${id}`
+        );
+
+        const prod = res.data.product || res.data;
+
+        if (!prod) {
+          setError("Product not found");
+          return;
+        }
+
+        const pid = prod.id || prod._id;
+
+        setProduct({ ...prod, productId: pid });
+        setProductId(pid);
+        setWishlisted(isInWishlist(pid));
+      } catch (err) {
+        console.error("❌ Fetch Error:", err);
+        setError("Unable to load product details.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) fetchProduct();
+  }, [id]);
+
+  /* ================= CART ================= */
+
+  const handleAddToCart = (item, qty) => {
+    addToCart({
+      ...item,
+      productId,
+      quantity: qty,
+    });
+  };
+
+  /* ================= WISHLIST ================= */
+
+  const toggleWishlist = () => {
+    const wishlist = getWishlist();
+
+    if (wishlisted) {
+      const updated = wishlist.filter(
+        (item) => item.productId !== productId
+      );
+      localStorage.setItem("wishlist", JSON.stringify(updated));
+      setWishlisted(false);
+    } else {
+      wishlist.push({
+        productId,
+        name: product.name,
+        price: product.price,
+        imageUrl: product.imageUrl || product.img,
+      });
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      setWishlisted(true);
+    }
+  };
+
+  /* ================= LOADING ================= */
+
   if (isLoading) {
     return (
-        <>
-            <Navbar />
-            <div className="product-details-container"><p>Loading...</p></div>
-        </>
+      <>
+        <Navbar />
+        <div className="loading-state">
+          <div className="spinner" />
+          <p>Loading product details...</p>
+        </div>
+      </>
     );
   }
 
-  // (NEW) Render error or product not found state
-  if (error || !product) {
-    return (
-      <>
-        <Navbar />
-        <div className="product-not-found">
-          <h2>{error || "Product not found ❌"}</h2>
-        </div>
-      </>
-    );
-  }
+  /* ================= ERROR ================= */
 
-  // --- If product is found, render the details ---
-  return (
-    <>
-      <Navbar />
-      <div className="product-details-container">
-        <div className="product-main">
-          <img src={product.img} alt={product.name} className="main-image" />
-          {/* Optional: Add thumbnail logic later if needed */}
-        </div>
+  if (error || !product) {
+    return (
+      <>
+        <Navbar />
+        <div className="product-not-found">
+          <h2>{error || "Product not found ❌"}</h2>
+          <button onClick={() => navigate("/shop")} className="back-btn">
+            Back to Shop
+          </button>
+        </div>
+      </>
+    );
+  }
 
-        <div className="product-info">
-          <h1>{product.name}</h1>
-          <p className="price">${product.price.toFixed(2)}</p>
-          <p><strong>Category:</strong> {product.category}</p>
-          <p><strong>Brand:</strong> {product.brand}</p>
-          <p className="description">{product.description}</p>
+  /* ================= UI ================= */
 
-          <div className="quantity">
-            <button onClick={() => setQuantity((q) => Math.max(1, q - 1))}>-</button>
-            <span>{quantity}</span>
-            <button onClick={() => setQuantity((q) => q + 1)}>+</button>
-          </div>
+  return (
+    <>
+      <Navbar />
 
-          <div className="action-buttons">
-            <button
-              className="add-to-cart"
-              onClick={() => handleAddToCart(product, quantity)}
-            >
-              Add to Cart
-            </button>
-            <button className="buy-now">Buy Now</button>
-          </div>
-        </div>
-      </div>
-      {/* Note: Related products section was removed as it requires fetching all products */}
-    </>
-  );
+      <div className="product-details-container">
+        {/* IMAGE */}
+        <div className="product-main">
+          <img
+            src={product.imageUrl || product.img}
+            alt={product.name}
+            className="main-image"
+          />
+        </div>
+
+        {/* INFO */}
+        <div className="product-info">
+          <p className="breadcrumb">
+            Products / {product.category || "General"}
+          </p>
+
+          <div className="product-title-row">
+            <h1>{product.name}</h1>
+            <span
+              className={`wishlist-heart ${wishlisted ? "active" : ""}`}
+              onClick={toggleWishlist}
+            >
+              {wishlisted ? "❤️" : "🤍"}
+            </span>
+          </div>
+
+          <p className="price">
+            ${Number(product.price).toFixed(2)}
+          </p>
+
+          <p className="description">
+            {product.description || "No description available"}
+          </p>
+
+          {/* QUANTITY */}
+          <div className="quantity-selector">
+            <label>Quantity</label>
+            <div className="quantity-controls">
+              <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
+              <span>{quantity}</span>
+              <button onClick={() => setQuantity(q => q + 1)}>+</button>
+            </div>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="action-buttons">
+            <button
+              className="add-to-cart"
+              onClick={() => handleAddToCart(product, quantity)}
+            >
+              Add to Cart
+            </button>
+
+            <button
+              className="buy-now"
+              onClick={() => {
+                handleAddToCart(product, quantity);
+                navigate("/cart");
+              }}
+            >
+              Buy Now
+            </button>
+          </div>
+        </div>
+      </div>
+      <Footer/>
+    </>
+  );
 }

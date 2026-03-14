@@ -1,0 +1,175 @@
+/* --- WishlistPage.css --- */
+
+/* 1. Page Wrapper */
+.wishlist-wrapper {
+  min-height: 100vh;
+  background-color: #f8fafc; /* Matching your site's light blue-grey bg */
+  padding: 60px 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.wishlist-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.wishlist-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 40px;
+  text-align: left;
+}
+
+/* 2. Empty State (Glassy Effect) */
+.wishlist-empty {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 60px;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.wishlist-empty p {
+  font-size: 1.2rem;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.go-shop-btn {
+  display: inline-block;
+  padding: 12px 32px;
+  background-color: #2a9d8f; /* Your primary teal */
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.go-shop-btn:hover {
+  background-color: #21867a;
+  transform: translateY(-2px);
+}
+
+/* 3. Wishlist Grid */
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+/* 4. Wishlist Card */
+.wishlist-card {
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.wishlist-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.wishlist-img {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  background-color: #f1f5f9; /* Contrast background for product image */
+  padding: 20px;
+}
+
+.wishlist-info {
+  padding: 20px;
+  flex-grow: 1;
+}
+
+.wishlist-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 8px;
+  transition: color 0.2s;
+}
+
+.wishlist-name:hover {
+  color: #2a9d8f;
+}
+
+.wishlist-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* 5. Actions Section */
+.wishlist-actions {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wishlist-add-cart {
+  width: 100%;
+  padding: 12px;
+  background-color: #0f172a; /* Slate Dark */
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.wishlist-add-cart:hover {
+  background-color: #334155;
+}
+
+.wishlist-remove {
+  width: 100%;
+  padding: 10px;
+  background-color: transparent;
+  color: #ef4444; /* Red for removal */
+  border: 1px solid #fee2e2;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.wishlist-remove:hover {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+/* 6. Responsive Design */
+@media (max-width: 768px) {
+  .wishlist-title {
+    text-align: center;
+    font-size: 1.8rem;
+  }
+  
+  .wishlist-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.clickable {
+  cursor: pointer;
+}
+.wishlist-img {
+  pointer-events: auto;
+}
+
+.wishlist-container {
+  padding-top: 100px; /* Adds space so the header doesn't cover "Discover Our Products" */
+  min-height: 100vh;
+}

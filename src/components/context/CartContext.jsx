@@ -1,4 +1,3 @@
-// context/CartContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
@@ -15,10 +14,12 @@ export function CartProvider({ children }) {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // ➕ Add product to cart
+  // ➕ UPDATED: Add product to cart with Vendor Tracking
   const addToCart = (product) => {
     setCart((prevCart) => {
+      // Check if product already exists in cart
       const existing = prevCart.find((item) => item.id === product.id);
+      
       if (existing) {
         return prevCart.map((item) =>
           item.id === product.id
@@ -26,7 +27,16 @@ export function CartProvider({ children }) {
             : item
         );
       } else {
-        return [...prevCart, { ...product, quantity: 1 }];
+        // ✅ CRITICAL FIX: Explicitly ensure dealerId is included in the cart item
+        // This ensures the backend knows which seller owns which product during checkout
+        return [
+          ...prevCart, 
+          { 
+            ...product, 
+            dealerId: product.dealerId || null, // Preserve dealerId or set to null for Admin products
+            quantity: 1 
+          }
+        ];
       }
     });
   };

@@ -1,93 +1,94 @@
-// src/components/pages/Dashboard.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import { useCart } from "../context/CartContext";
 import Navbar from "../Navbar"; 
-import Footer from "../Footer";  // ✅ Import Footer
+import Footer from "../Footer";
 import "../styles/DashBoard.css";
 
+const API_URL = "http://localhost:5001";
 
 export default function Dashboard() {
-  const auth = useAuth();
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { addToCart } = useCart();
 
-  // ✅ Custom logout (if you want to trigger auth removal from Dashboard)
-  const handleLogout = () => {
-    auth.removeUser();
-    localStorage.removeItem("userToken");
-  };
+  // ✅ Fetch dynamic data from your backend
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        setIsLoading(true);
+        // We fetch products and perhaps filter them by a 'featured' tag or just take the latest 4
+        const res = await axios.get(`${API_URL}/api/products`);
+        if (res.data.success) {
+          // Logic: Show the 4 most recent products added by the admin
+          const dynamicDeals = res.data.items.slice(0, 4); 
+          setFeaturedProducts(dynamicDeals);
+        }
+      } catch (err) {
+        console.error("Failed to load seasonal deals", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // ✅ Sample featured products
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Sneakers",
-      price: 89.99,
-      quantity: 1,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6D6Zy2rPILUgGRxUEdXKkh0nuwChUktF61Q&s",
-    },
-    {
-      id: 2,
-      name: "Smartphone",
-      price: 699.99,
-      quantity: 1,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbuWbcxIctKqHkwAsnkBY7qp1pe-iPGnEsJA&s",
-    },
-    {
-      id: 3,
-      name: "Watch",
-      price: 199.99,
-      quantity: 1,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpW6O9SL3F_R1bBTKi_ophVU0rhogKRrerZQ&s",
-    },
-    {
-      id: 4,
-      name: "Headphones",
-      price: 129.99,
-      quantity: 1,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTukdpli8OYpbqKW4EpCvpA413y_TrPbsHnbw&s",
-    },
-  ];
+    fetchFeatured();
+  }, []);
 
   return (
-    <div>
-      {/* ✅ Navbar handles cart + logout */}
+    <div className="dashboard-wrapper">
       <Navbar />
 
-      {/* ✅ Hero Section */}
+      {/* ✅ Dynamic Hero: This could also be fetched from a 'Settings' API later */}
       <section className="hero">
         <div className="hero-content">
-          <h1>Discover the Latest Trends</h1>
-          <p>Shop the best deals on clothing, electronics, and more.</p>
+          <span className="season-tag">Limited Collection 2026</span>
+          <h1>Experience Premium Quality</h1>
+          <p>Handpicked deals curated specifically for this season.</p>
           <Link to="/shop" className="hero-btn">
-            Shop Now
+            Explore Collection
           </Link>
         </div>
       </section>
 
-      {/* ✅ Featured Products */}
+      {/* ✅ Featured Products Section */}
       <section className="featured-products">
-        <h2>Featured Products</h2>
-        <div className="product-grid">
-          {featuredProducts.map((product) => (
-            <div key={product.id} className="product-card">
-              <div className="product-img-wrapper">
-                <img src={product.image} alt={product.name} />
-              </div>
-              <h3>{product.name}</h3>
-              <p>${product.price.toFixed(2)}</p>
-              <button onClick={() => addToCart(product)}>Add to Cart</button>
-            </div>
-          ))}
+        <div className="section-header">
+          <h2>Seasonal Highlights</h2>
+          <Link to="/shop" className="view-all">View All Products →</Link>
         </div>
+
+        {isLoading ? (
+          <div className="loading-container">
+            <div className="spinner"></div>
+            <p>Fetching latest deals...</p>
+          </div>
+        ) : (
+          <div className="product-grid">
+            {featuredProducts.map((product) => (
+              <div key={product.id || product._id} className="product-card">
+                <div className="product-img-wrapper">
+                  <img src={product.imageUrl || product.img} alt={product.name} />
+                  {product.price < 100 && <span className="deal-badge">Hot Deal</span>}
+                </div>
+                <div className="product-card-info">
+                  <span className="category-label">{product.category}</span>
+                  <h3>{product.name}</h3>
+                  <p className="price">${Number(product.price).toFixed(2)}</p>
+                  <button 
+                    className="add-btn" 
+                    onClick={() => addToCart({ ...product, quantity: 1 })}
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* ✅ Footer at the bottom */}
       <Footer />
     </div>
   );

@@ -28,6 +28,8 @@ import TermsOfService from './components/pages/TermsOfService';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import Help from './components/pages/Help';
 import CallbackPage from './components/pages/CallbackPage';
+import OrdersPage from './components/pages/OrdersPage';
+import WishlistPage from './components/pages/WishlistPage';
 
 
 // (NEW) Import the new Admin pages
@@ -86,6 +88,8 @@ function App() {
         <Route path="/dealer-login" element={<DealerLoginPage />} />
         <Route path="/home" element={<CallbackPage />} />
         <Route path="/logout-success" element={<LogoutSuccessPage />} />
+        <Route path="/profile/orders" element={<OrdersPage />} />
+        <Route path="/profile/wishlist" element={<WishlistPage />} />
 
         {/* --- (NEW) Admin Routes --- */}
         <Route 

@@ -1,185 +1,221 @@
-/* --- Imports & Theme Variables --- */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --primary-color: #2a9d8f; /* Modern teal */
-  --accent-color: #e76f51; /* Accent orange/red */
-  --background-page: #f4f7f6;
-  --background-card: #ffffff;
-  --text-dark: #264653;
-  --text-light: #6c757d;
-  --border-color: #dee2e6;
-  --shadow-light: rgba(0, 0, 0, 0.07);
-  --font-family: 'Poppins', sans-serif;
+  /* Brand Colors */
+  --primary-orange: #fb923c;
+  --primary-teal: #2dd4bf;   /* Slightly brighter for dark mode visibility */
+  --text-main: #ffffff;      /* Changed from black to white */
+  --text-muted: #94a3b8;    /* Lighter grey for better contrast on dark bg */
+  
+  /* Surfaces - Inverted for Dark Theme */
+  --surface: #1e293b;        /* Deep slate for cards/sidebar */
+  --background: #0f172a;     /* Very dark navy for page background */
+  --border-soft: rgba(255, 255, 255, 0.1); /* Subtle white borders */
+  
+  /* Shadows - Adjusted for Dark Mode */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 12px 24px -6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+
+  /* Layout */
+  --nav-height: 80px;
+  --font-main: 'Inter', -apple-system, sans-serif;
 }
 
-/* --- Main Page Layout --- */
+/* Global Typography Reset */
+body {
+  font-family: var(--font-main);
+  background-color: var(--background);
+  color: var(--text-main); /* Global white text */
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+/* 1. Layout Container */
 .shop-container {
   display: flex;
-  padding: 2rem;
-  gap: 2rem;
-  background-color: var(--background-page);
-  font-family: var(--font-family);
-  max-width: 1600px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: calc(var(--nav-height) + 40px) 40px 80px;
+  gap: 50px;
+  background-color: var(--background);
 }
 
-/* --- Filter Sidebar (Left) --- */
+/* 2. Sidebar Refinement */
 .filters {
-  width: 250px;
-  flex-shrink: 0; /* Prevents the sidebar from shrinking */
-  background-color: var(--background-card);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px var(--shadow-light);
-  color: var(--text-dark);
-  align-self: flex-start; /* Aligns sidebar to the top */
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(var(--nav-height) + 20px);
+  height: fit-content;
+  background: var(--surface); /* Dark surface */
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid var(--border-soft);
 }
 
 .search-filters {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.05); /* Slightly transparent input */
+  color: white;
   font-family: inherit;
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+  transition: all 0.2s ease;
+}
+
+.search-filters::placeholder {
+  color: var(--text-muted);
 }
 
 .filter-group {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 35px;
 }
 
-.filter-group:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.filter-group h4 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-  font-weight: 600;
+.filters h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  color: var(--text-main); /* White header */
+  margin-bottom: 20px;
 }
 
 .filter-group label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
   cursor: pointer;
-  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
 
-/* --- Main Products Section (Right) --- */
+.filter-group label:hover {
+  color: var(--primary-orange);
+}
+
+/* 3. Product Grid & Section Header */
 .products-section {
-  flex: 1;
+  flex-grow: 1;
 }
 
 .products-section h2 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  color: var(--text-dark);
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-main); /* White main title */
+  margin-bottom: 40px;
+  letter-spacing: -0.04em;
 }
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 32px;
 }
 
-/* --- Product Card Styling --- */
+/* 4. Product Card - White Text Focus */
 .product-card {
-  background: var(--background-card);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px var(--shadow-light);
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1px solid var(--border-soft);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-orange);
 }
 
 .product-card img {
   width: 100%;
-  height: 200px;
+  height: 260px;
   object-fit: contain;
+  background: #ffffff; /* Keep image bg white for product visibility */
+  padding: 25px;
   cursor: pointer;
 }
 
-.product-card h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 1rem 1rem 0.5rem;
-  flex-grow: 1; /* Pushes price and button to the bottom */
-}
-
-.product-card .price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  margin: 0 1rem 1rem;
-}
-
-.product-card button {
-  padding: 0.8rem 1rem;
-  margin: 0 1rem 1rem;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.product-card button:hover {
-  background-color: #268a7e;
-}
-
-/* --- Pagination --- */
-.pagination {
+.product-info {
+  padding: 24px;
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 2rem;
+  flex-direction: column;
+  flex-grow: 1;
+  background: var(--surface);
 }
 
-.pagination button {
-  padding: 8px 14px;
-  border: 1px solid var(--border-color);
-  background-color: var(--background-card);
-  color: var(--primary-color);
+.product-info h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-main); /* White product name */
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main); /* White price */
+  margin-bottom: 24px;
+}
+
+/* Button Modernization */
+.product-info button {
+  width: 100%;
+  margin-top: auto;
+  background: var(--primary-orange); /* Orange background for contrast */
+  color: white; /* White text on button */
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
-  border-radius: 5px;
+  transition: all 0.3s ease;
 }
 
-.pagination button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+.product-info button:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 8px 20px -4px rgba(251, 146, 60, 0.4);
+}
+
+/* 5. Pagination Logic */
+.pagination button {
+  min-width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface);
+  color: var(--text-main); /* White numbers */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .pagination button.active {
-  background-color: var(--primary-color);
+  background: var(--primary-orange);
   color: white;
-  border-color: var(--primary-color);
+  border-color: var(--primary-orange);
 }
 
-/* --- Responsive Design --- */
-@media (max-width: 992px) {
-  .shop-container {
-    flex-direction: column;
-  }
+.pagination button:disabled {
+  opacity: 0.2;
+}
 
-  .filters {
-    width: 100%;
-    align-self: initial; /* Reset alignment for column layout */
-  }
+/* 6. Utility States */
+.loading-state, .error-state, .no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 100px 0;
+  font-weight: 600;
+  color: var(--text-muted);
 }

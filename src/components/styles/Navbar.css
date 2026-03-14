@@ -1,207 +1,344 @@
-/* ======================== */
-/* Navbar glassy style       */
-/* ======================== */
+/* --- Updated Navbar.css --- */
+
+:root {
+  --primary-accent: #fb923c;
+  --glass-bg: rgba(15, 23, 42, 0.9);
+  --border-light: rgba(255, 255, 255, 0.1);
+}
+
+/* 1. Main Navbar Container */
 .navbar {
-  position: fixed;           /* stays on top while scrolling */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px;              /* ✅ fixed height */
+  height: 80px; /* Increased height for better vertical centering */
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Keeps left/right sections balanced */
   align-items: center;
-  background: rgba(62, 3, 180, 0.6);
+  padding: 0 6%; /* Percentage padding matches modern web standards */
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 0 25px;           /* ✅ only horizontal padding */
-  color: white;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  z-index: 2000;             /* navbar always above content */
-  box-sizing: border-box;    /* ✅ padding won't affect height */
+  border-bottom: 1px solid var(--border-light);
+  z-index: 9999;
+  box-sizing: border-box; /* Crucial: ensures padding doesn't break width */
+  transition: background 0.3s ease;
 }
 
-/* Push page content down so it doesn’t hide behind navbar */
-body {
-  padding-top: 70px; /* ✅ matches navbar height */
-}
-
-/* ======================== */
-/* Left side                */
-/* ======================== */
+/* 2. Left Side Section */
 .nav-left {
   display: flex;
   align-items: center;
-  height: 100%;
+  gap: 40px;
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-right: 25px;
-  color: #fff;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #2a9d8f, var(--primary-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .nav-links {
   display: flex;
-  gap: 15px;
-  height: 100%;
+  gap: 25px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-links a {
   text-decoration: none;
-  font-weight: 600;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: background 0.3s ease, transform 0.2s ease;
-  display: flex;
-  align-items: center;
-  height: 38px;  /* ✅ uniform button height */
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
 }
 
 .nav-links a:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
+  color: var(--primary-accent);
 }
 
-/* ======================== */
-/* Right side               */
-/* ======================== */
+/* 3. Right Side Section */
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 15px;
-  height: 100%;
+  gap: 25px; /* Spacing between search box and profile button */
 }
 
-/* ======================== */
-/* Search box               */
-/* ======================== */
+/* --- Search Box --- */
 .search-box {
+  position: relative;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  border-radius: 25px;
-  padding: 4px 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  height: 38px;   /* ✅ consistent height */
 }
 
 .search-box input {
-  border: none;
-  padding: 0 10px;
+  width: 250px;
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: 1px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
   outline: none;
-  background: transparent;
-  color: white;
-  font-size: 0.95rem;
-  height: 100%;  /* ✅ fills parent */
-  width: 160px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
 }
 
-.search-box input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+.search-box input:focus {
+  width: 300px; /* Expands on focus */
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 15px rgba(251, 146, 60, 0.15);
 }
 
-.search-btn {
-  background: rgba(255, 165, 0, 0.9);
-  border: none;
-  padding: 6px 12px;
-  cursor: pointer;
-  border-radius: 20px;
-  color: white;
-  font-weight: bold;
-  transition: background 0.3s ease;
-  height: 100%;   /* ✅ consistent */
-}
-
-.search-btn:hover {
-  background: rgba(255, 140, 0, 1);
-}
-
-/* ======================== */
-/* Profile Dropdown         */
-/* ======================== */
-.dropdown {
-  position: relative;
-  height: 38px;  /* ✅ fixed size */
-}
-
+/* --- Profile Button --- */
 .dropdown-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-light);
   color: white;
-  font-weight: bold;
-  border-radius: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
-  backdrop-filter: blur(10px);
-  transition: background 0.3s ease;
   display: flex;
   align-items: center;
-  height: 100%;  /* ✅ consistent */
+  gap: 8px;
+  transition: all 0.3s ease;
 }
 
 .dropdown-btn:hover {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Dropdown Menu */
+/* 4. Responsive Fixes */
+@media (max-width: 1024px) {
+  .navbar { height: 70px; padding: 0 30px; }
+  .nav-left { gap: 20px; }
+  .nav-links { display: none; } /* Consider using a mobile menu here */
+  .search-box input { width: 180px; }
+}
+
+@media (max-width: 480px) {
+  .logo { font-size: 1.4rem; }
+  .search-box { display: none; } /* Hide search on very small screens */
+}
+/* --- Navbar.css --- */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  justify-content: space-between; /* Pushes groups to the edges */
+  align-items: center; /* Vertically centers everything */
+  padding: 0 4%;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+/* Left Group: Logo + Main Nav */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #2a9d8f, #fb923c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+}
+
+.nav-links a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover { color: #fb923c; }
+
+/* Right Group: Search + User Profile */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.search-box input {
+  width: 240px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  outline: none;
+}
+
+.dropdown-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap; /* Prevents name from wrapping */
+}
+
+/* --- Search Dropdown Container --- */
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 10px); /* Sits right below the search box */
+  right: 0;
+  width: 350px; /* Width of the results box */
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+  z-index: 10000;
+}
+
+/* --- Individual Search Item --- */
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.search-item:last-child {
+  border-bottom: none;
+}
+
+.search-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* --- IMAGE SIZE ADJUSTMENT --- */
+.search-item img {
+  width: 50px;           /* Change this to adjust width */
+  height: 50px;          /* Change this to adjust height */
+  object-fit: cover;     /* Prevents stretching */
+  border-radius: 8px;    /* Optional: rounded corners for thumbnails */
+  background: white;     /* Good if your product images have transparency */
+  flex-shrink: 0;        /* Prevents image from squishing */
+}
+
+/* --- Search Item Text Styling --- */
+.search-item .name {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Cuts off long names with ... */
+}
+
+.search-item .price {
+  color: var(--primary-accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 4px 0 0 0;
+}
+
+/* --- Profile Dropdown Wrapper --- */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* --- The Menu Box --- */
 .dropdown-menu {
   position: absolute;
-  top: 110%;
+  top: calc(100% + 12px); /* Space below the button */
   right: 0;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(12px);
-  border-radius: 10px;
-  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.25);
-  min-width: 200px;
-  padding: 10px 0;
-  z-index: 3000;
-  animation: fadeIn 0.25s ease-in-out;
+  width: 220px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  z-index: 10001;
+  animation: dropdownFade 0.2s ease-out;
 }
 
-/* Dropdown items */
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Individual Menu Items --- */
 .menu-item {
-  display: block;
-  padding: 10px 15px;
   text-decoration: none;
-  color: #2a0080;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 12px 16px;
+  font-size: 0.9rem;
   font-weight: 500;
-  transition: background 0.2s ease, color 0.2s ease;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: block; /* Ensures it fills the width */
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
 }
 
 .menu-item:hover {
-  background: rgba(42, 0, 128, 0.08);
-  color: #000;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--primary-accent);
+  transform: translateX(5px); /* Subtle slide effect */
 }
 
-/* Logout Button */
-.dropdown-menu .logout-btn {
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: red;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: left;
-  padding: 10px 15px;
-  transition: background 0.2s ease;
+/* --- Special Styling for Logout --- */
+.logout-btn {
+  margin-top: 6px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 14px;
+  color: #ef4444; /* Soft red for logout */
+  font-weight: 600;
 }
 
-.dropdown-menu .logout-btn:hover {
-  background: rgba(255, 0, 0, 0.1);
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  transform: none; /* No slide for logout */
 }
 
-/* Small fade animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* --- Admin Login Highlight --- */
+.menu-item[href*="admin"] {
+  color: #38bdf8; /* Soft blue to differentiate Admin section */
 }
