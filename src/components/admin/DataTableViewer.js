@@ -52,12 +52,6 @@ export default function DataTableViewer({
     );
   }, [data, tableName]);
 
-  const hiddenFields =
-  tableName === 'Orders'
-    ? ['items', 'shipping']
-    : ['password'];
-
-
   /* ---------------- SELECTION ---------------- */
   const handleSelectAll = (e) => {
     setSelectedIds(
@@ -150,7 +144,8 @@ export default function DataTableViewer({
     <div className="data-table-container">
       {error && <p className="error-message">{error}</p>}
 
-      {selectedIds.length > 0 && tableName !== 'Orders' && (
+      {/* ✅ ALLOW BATCH DELETE FOR ORDERS */}
+      {selectedIds.length > 0 && (
         <button
           className="btn btn-danger"
           onClick={handleBatchDelete}
@@ -198,13 +193,12 @@ export default function DataTableViewer({
               </td>
 
               {headers.map(header => (
-  <td key={header}>
-    {typeof row[header] === 'object'
-      ? JSON.stringify(row[header])
-      : String(row[header])}
-  </td>
-))}
-
+                <td key={header}>
+                  {typeof row[header] === 'object' && row[header] !== null
+                    ? JSON.stringify(row[header])
+                    : String(row[header] || '')}
+                </td>
+              ))}
 
               {/* -------- ORDER STATUS -------- */}
               {tableName === 'Orders' && (
@@ -218,40 +212,30 @@ export default function DataTableViewer({
                       )
                     }
                   >
-                    <option value="Processing">
-                      Processing
-                    </option>
+                    <option value="Processing">Processing</option>
                     <option value="Shipped">Shipped</option>
-                    <option value="Out for Delivery">
-                      Out for Delivery
-                    </option>
+                    <option value="Out for Delivery">Out for Delivery</option>
                     <option value="Delivered">Delivered</option>
                   </select>
                 </td>
               )}
 
-              {/* -------- ACTIONS -------- */}
+              {/* -------- ACTIONS (NOW SHOWS ON ORDERS TOO) -------- */}
               <td className="actions-cell">
-                {tableName === 'Orders' ? (
-                  <span style={{ color: '#aaa' }}>—</span>
-                ) : (
-                  <>
-                    <button
-                      className="btn btn-edit"
-                      onClick={() => setEditingRow(row)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-delete"
-                      onClick={() =>
-                        setDeletingRowId(row[primaryKey])
-                      }
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
+                <button
+                  className="btn btn-edit"
+                  onClick={() => setEditingRow(row)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="btn btn-delete"
+                  onClick={() =>
+                    setDeletingRowId(row[primaryKey])
+                  }
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
@@ -264,18 +248,25 @@ export default function DataTableViewer({
           <div className="modal-content">
             <h2>Edit {tableName.slice(0, -1)}</h2>
             <form onSubmit={handleUpdate}>
-              {Object.keys(editingRow).map((key) => (
-                <div className="form-group" key={key}>
-                  <label>{key}</label>
-                  <input
-                    type="text"
-                    name={key}
-                    value={editingRow[key]}
-                    onChange={handleInputChange}
-                    disabled={key === primaryKey}
-                  />
-                </div>
-              ))}
+              {Object.keys(editingRow).map((key) => {
+                // Determine if this field is a complex object (like items or shipping)
+                const isObject = typeof editingRow[key] === 'object' && editingRow[key] !== null;
+
+                return (
+                  <div className="form-group" key={key}>
+                    <label>{key}</label>
+                    <input
+                      type="text"
+                      name={key}
+                      // Safely display objects as JSON strings
+                      value={isObject ? JSON.stringify(editingRow[key]) : editingRow[key] || ''}
+                      onChange={handleInputChange}
+                      // Disable primary keys AND complex objects so admins don't accidentally break arrays/JSON
+                      disabled={key === primaryKey || isObject}
+                    />
+                  </div>
+                );
+              })}
               <div className="modal-actions">
                 <button className="btn btn-edit" type="submit">
                   Save

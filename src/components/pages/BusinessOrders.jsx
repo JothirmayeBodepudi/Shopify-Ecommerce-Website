@@ -1,15 +1,18 @@
 import React, { useState, useMemo } from "react";
-import "../styles/BusinessOrders.css";
+import { Link } from "react-router-dom";
 import Navbar from "../Navbar";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { useCart } from "../context/CartContext"; // Import the custom hook
 import Footer from "../Footer";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useCart } from "../context/CartContext";
+import { Briefcase, Building2, Mail, Phone, MapPin, ClipboardList, ShieldCheck, ArrowLeft } from "lucide-react";
+import "../styles/BusinessOrders.css";
 
 const BusinessOrderPage = () => {
   const { cart, clearCart } = useCart();
 
   const [formData, setFormData] = useState({
     businessName: "",
+    taxId: "", // Added for professional B2B
     contactPerson: "",
     email: "",
     phone: "",
@@ -23,7 +26,6 @@ const BusinessOrderPage = () => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
-  // Calculate subtotal from cart items
   const subtotal = useMemo(() => {
     return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }, [cart]);
@@ -37,222 +39,166 @@ const BusinessOrderPage = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-
-    const requiredFields = [
-      "businessName", "contactPerson", "email", "phone", "address", "city", "state", "zip",
-    ];
-    const isFormValid = requiredFields.every((field) => formData[field].trim() !== "");
-
     if (cart.length === 0) {
-      alert("Your cart is empty. Please add products to place an order.");
+      alert("Your cart is empty.");
       return;
     }
-
-    if (isFormValid) {
-      setFormSubmitted(true);
-    } else {
-      alert("Please fill in all required business information.");
-    }
-  };
-
-  const createOrder = (data, actions) => {
-    return actions.order.create({
-      purchase_units: [
-        {
-          description: "Business Order",
-          amount: {
-            currency_code: "USD",
-            value: total.toFixed(2),
-          },
-        },
-      ],
-    });
-  };
-
-  const onApprove = (data, actions) => {
-    return actions.order.capture().then((details) => {
-      alert(`Transaction completed by ${details.payer.name.given_name}`);
-      // Clear the cart after successful payment
-      clearCart();
-      setOrderPlaced(true);
-    });
-  };
-
-  const onError = (err) => {
-    console.error("PayPal Checkout Error:", err);
-    alert("Payment could not be processed.");
+    setFormSubmitted(true);
   };
 
   return (
-    <>
+    <div className="b2b-page-wrapper">
       <Navbar />
-      <div className="business-orders-container">
+      
+      <div className="b2b-hero">
+        <div className="container">
+          <h1>Business Procurement</h1>
+          <p>Bulk pricing and corporate tax invoicing for your organization.</p>
+        </div>
+      </div>
+
+      <main className="b2b-main container">
         {!orderPlaced ? (
-          <form onSubmit={handleFormSubmit} className="business-orders-form">
-            <h2>Business Order</h2>
+          <div className="b2b-grid">
+            
+            {/* LEFT: FORM SECTION */}
+            <div className="b2b-form-column">
+              <Link to="/cart" className="back-link">
+                <ArrowLeft size={16} /> Back to Cart
+              </Link>
 
-            {/* Displaying selected products directly from the cart */}
-            <div className="selected-products-cart">
-              <h3>Your Order</h3>
-              <div className="cart-items">
-                {cart.length > 0 ? (
-                  cart.map((item) => (
-                    <div key={item.id} className="cart-item">
-                      <img
-                        src={item.img}
-                        alt={item.name}
-                        className="cart-item-image"
-                      />
-                      <div className="cart-item-details">
-                        <h4>{item.name}</h4>
-                        <p>
-                          ${item.price.toFixed(2)} x {item.quantity} = $
-                          {(item.price * item.quantity).toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="empty-cart-message">
-                    Your cart is empty. Please add products to continue.
-                  </p>
+              <form onSubmit={handleFormSubmit} className="b2b-card">
+                <div className="card-header">
+                  <Building2 size={22} className="text-blue-600" />
+                  <h3>Company Details</h3>
+                </div>
+                
+                <div className="form-grid">
+                  <div className="input-group full-width">
+                    <label>Registered Business Name</label>
+                    <input type="text" name="businessName" placeholder="e.g. Acme Corp Int." value={formData.businessName} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group">
+                    <label>Tax ID / VAT Number</label>
+                    <input type="text" name="taxId" placeholder="Optional for invoicing" value={formData.taxId} onChange={handleChange} />
+                  </div>
+                  <div className="input-group">
+                    <label>Contact Person</label>
+                    <input type="text" name="contactPerson" placeholder="Full Name" value={formData.contactPerson} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group">
+                    <label>Business Email</label>
+                    <input type="email" name="email" placeholder="corp@company.com" value={formData.email} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group">
+                    <label>Contact Number</label>
+                    <input type="tel" name="phone" placeholder="+1 (555) 000-0000" value={formData.phone} onChange={handleChange} required />
+                  </div>
+                </div>
+
+                <div className="card-header mt-8">
+                  <MapPin size={22} className="text-blue-600" />
+                  <h3>Registered Office Address</h3>
+                </div>
+                
+                <div className="form-grid">
+                  <div className="input-group full-width">
+                    <label>Street Address</label>
+                    <input type="text" name="address" placeholder="HQ Suite or Building" value={formData.address} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group">
+                    <label>City</label>
+                    <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group">
+                    <label>State / Province</label>
+                    <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group">
+                    <label>ZIP Code</label>
+                    <input type="text" name="zip" placeholder="Zip" value={formData.zip} onChange={handleChange} required />
+                  </div>
+                </div>
+
+                <div className="input-group mt-6">
+                  <label>Special Instructions / PO Reference</label>
+                  <textarea name="orderDetails" placeholder="Any specific requirements for this business order?" value={formData.orderDetails} onChange={handleChange} rows="3" />
+                </div>
+
+                {!formSubmitted && (
+                  <button type="submit" className="btn-b2b-primary">
+                    Confirm Details & Pay
+                  </button>
                 )}
-              </div>
+              </form>
             </div>
 
-            {/* Business Info Section */}
-            <div className="business-info-section">
-              <h3>Business Information</h3>
-              <input
-                type="text"
-                name="businessName"
-                placeholder="Business Name"
-                value={formData.businessName}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="text"
-                name="contactPerson"
-                placeholder="Contact Person"
-                value={formData.contactPerson}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Business Email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Contact Number"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="text"
-                name="address"
-                placeholder="Business Address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-              />
-              <div className="location-fields">
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="City"
-                  value={formData.city}
-                  onChange={handleChange}
-                  required
-                />
-                <input
-                  type="text"
-                  name="state"
-                  placeholder="State"
-                  value={formData.state}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <input
-                type="text"
-                name="zip"
-                placeholder="ZIP Code"
-                value={formData.zip}
-                onChange={handleChange}
-                required
-              />
-              <textarea
-                name="orderDetails"
-                placeholder="Order Details / Special Instructions"
-                value={formData.orderDetails}
-                onChange={handleChange}
-                rows="3"
-              />
-            </div>
+            {/* RIGHT: SUMMARY SECTION */}
+            <aside className="b2b-summary-column">
+              <div className="summary-card sticky-summary">
+                <div className="card-header">
+                  <ClipboardList size={22} className="text-blue-600" />
+                  <h3>Purchase Summary</h3>
+                </div>
 
-            {/* Payment Section */}
-            <div className="payment-section">
-              <h3>Order Summary</h3>
-              <div className="order-summary">
-                <div className="summary-item">
-                  <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                <div className="summary-cart-items">
+                  {cart.map((item) => (
+                    <div key={item.id} className="mini-item">
+                      <img src={item.img} alt={item.name} />
+                      <div className="mini-info">
+                        <p className="item-name">{item.name}</p>
+                        <p className="item-qty">Qty: {item.quantity} x ${item.price.toFixed(2)}</p>
+                      </div>
+                      <p className="item-total">${(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                  ))}
                 </div>
-                <div className="summary-item">
-                  <span>Tax (10%):</span>
-                  <span>${tax.toFixed(2)}</span>
+
+                <div className="summary-totals">
+                  <div className="summary-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+                  <div className="summary-row"><span>Corporate Tax (10%)</span><span>${tax.toFixed(2)}</span></div>
+                  <div className="summary-row total"><span>Grand Total</span><span>${total.toFixed(2)}</span></div>
                 </div>
-                <div className="summary-total">
-                  <span>Total:</span>
-                  <span>${total.toFixed(2)}</span>
+
+                {formSubmitted && (
+                  <div className="payment-gateway-box">
+                    <p className="payment-hint">Please complete the B2B transaction via PayPal:</p>
+                    <PayPalScriptProvider options={{ "client-id": "test", currency: "USD" }}>
+                      <PayPalButtons 
+                        style={{ layout: "vertical", shape: "rect", color: "blue" }}
+                        createOrder={(data, actions) => actions.order.create({
+                          purchase_units: [{ amount: { currency_code: "USD", value: total.toFixed(2) } }]
+                        })}
+                        onApprove={(data, actions) => actions.order.capture().then(() => {
+                          clearCart();
+                          setOrderPlaced(true);
+                        })}
+                      />
+                    </PayPalScriptProvider>
+                  </div>
+                )}
+                
+                <div className="trust-footer">
+                  <ShieldCheck size={16} /> <span>SSL Encrypted Transaction</span>
                 </div>
               </div>
-            </div>
-
-            {!formSubmitted && (
-              <button type="submit" className="submit-button">
-                Proceed to Payment
-              </button>
-            )}
-
-            {formSubmitted && (
-              <div className="paypal-buttons-container">
-                <PayPalScriptProvider
-                  options={{
-                    "client-id": "test",
-                    currency: "USD",
-                  }}
-                >
-                  <PayPalButtons
-                    style={{ layout: "vertical", color: "blue" }}
-                    createOrder={createOrder}
-                    onApprove={onApprove}
-                    onError={onError}
-                  />
-                </PayPalScriptProvider>
-              </div>
-            )}
-          </form>
+            </aside>
+          </div>
         ) : (
-          <div className="business-orders-form form-message">
-            <h3 className="success-message">✅ Business Order Confirmed!</h3>
-            <p>
-              Thank you, {formData.contactPerson}. Your business order has been
-              placed successfully for <b>{formData.businessName}</b>!
-            </p>
+          <div className="success-card">
+            <div className="success-icon">✅</div>
+            <h2>Order Successfully Placed</h2>
+            <p>Thank you for choosing us for your business needs, <strong>{formData.contactPerson}</strong>.</p>
+            <div className="order-receipt-box">
+              <p>Organization: <strong>{formData.businessName}</strong></p>
+              <p>A tax invoice has been sent to: <strong>{formData.email}</strong></p>
+            </div>
+            <Link to="/home" className="btn-b2b-primary">Return to Dashboard</Link>
           </div>
         )}
-      </div>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 };
 

@@ -30,6 +30,7 @@ import Help from './components/pages/Help';
 import CallbackPage from './components/pages/CallbackPage';
 import OrdersPage from './components/pages/OrdersPage';
 import WishlistPage from './components/pages/WishlistPage';
+import Chatbot from './components/pages/Chatbot';
 
 
 // (NEW) Import the new Admin pages
@@ -90,6 +91,7 @@ function App() {
         <Route path="/logout-success" element={<LogoutSuccessPage />} />
         <Route path="/profile/orders" element={<OrdersPage />} />
         <Route path="/profile/wishlist" element={<WishlistPage />} />
+        <Route path="/chat" element={<Chatbot/>} />
 
         {/* --- (NEW) Admin Routes --- */}
         <Route 

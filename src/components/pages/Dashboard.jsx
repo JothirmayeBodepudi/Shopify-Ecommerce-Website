@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "react-oidc-context";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
+import { ArrowRight, ShoppingCart, Truck, ShieldCheck, Headset } from "lucide-react";
 import Navbar from "../Navbar"; 
 import Footer from "../Footer";
 import "../styles/DashBoard.css";
@@ -13,16 +13,16 @@ export default function Dashboard() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
-  // ✅ Fetch dynamic data from your backend
+  // Fetch dynamic data from backend
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
         setIsLoading(true);
-        // We fetch products and perhaps filter them by a 'featured' tag or just take the latest 4
         const res = await axios.get(`${API_URL}/api/products`);
         if (res.data.success) {
-          // Logic: Show the 4 most recent products added by the admin
+          // Show the 4 most recent products
           const dynamicDeals = res.data.items.slice(0, 4); 
           setFeaturedProducts(dynamicDeals);
         }
@@ -37,57 +37,120 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="dashboard-wrapper">
+    <div className="storefront-wrapper">
       <Navbar />
 
-      {/* ✅ Dynamic Hero: This could also be fetched from a 'Settings' API later */}
-      <section className="hero">
-        <div className="hero-content">
-          <span className="season-tag">Limited Collection 2026</span>
-          <h1>Experience Premium Quality</h1>
-          <p>Handpicked deals curated specifically for this season.</p>
-          <Link to="/shop" className="hero-btn">
-            Explore Collection
-          </Link>
-        </div>
-      </section>
-
-      {/* ✅ Featured Products Section */}
-      <section className="featured-products">
-        <div className="section-header">
-          <h2>Seasonal Highlights</h2>
-          <Link to="/shop" className="view-all">View All Products →</Link>
-        </div>
-
-        {isLoading ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
-            <p>Fetching latest deals...</p>
+      <main className="storefront-main">
+        {/* --- HERO SECTION --- */}
+        <section className="hero-modern">
+          <div className="hero-content">
+            <span className="hero-badge">New Arrival • 2026 Collection</span>
+            <h1 className="hero-title">Elevate Your Everyday Style</h1>
+            <p className="hero-subtitle">
+              Discover our handpicked selection of premium quality products designed for the modern lifestyle.
+            </p>
+            <div className="hero-actions">
+              <Link to="/shop" className="btn-hero-primary">
+                Shop Collection <ArrowRight size={18} />
+              </Link>
+            </div>
           </div>
-        ) : (
-          <div className="product-grid">
-            {featuredProducts.map((product) => (
-              <div key={product.id || product._id} className="product-card">
-                <div className="product-img-wrapper">
-                  <img src={product.imageUrl || product.img} alt={product.name} />
-                  {product.price < 100 && <span className="deal-badge">Hot Deal</span>}
-                </div>
-                <div className="product-card-info">
-                  <span className="category-label">{product.category}</span>
-                  <h3>{product.name}</h3>
-                  <p className="price">${Number(product.price).toFixed(2)}</p>
-                  <button 
-                    className="add-btn" 
-                    onClick={() => addToCart({ ...product, quantity: 1 })}
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-            ))}
+          {/* Optional: You can add a background image in CSS, or a floating element here */}
+        </section>
+
+        {/* --- VALUE PROPOSITIONS --- */}
+        <section className="value-props-section">
+          <div className="value-prop">
+            <div className="vp-icon"><Truck size={24} /></div>
+            <div>
+              <h4>Free Shipping</h4>
+              <p>On orders over $100</p>
+            </div>
           </div>
-        )}
-      </section>
+          <div className="vp-divider"></div>
+          <div className="value-prop">
+            <div className="vp-icon"><ShieldCheck size={24} /></div>
+            <div>
+              <h4>Secure Checkout</h4>
+              <p>100% protected payments</p>
+            </div>
+          </div>
+          <div className="vp-divider"></div>
+          <div className="value-prop">
+            <div className="vp-icon"><Headset size={24} /></div>
+            <div>
+              <h4>24/7 Support</h4>
+              <p>Dedicated premium support</p>
+            </div>
+          </div>
+        </section>
+
+        {/* --- FEATURED PRODUCTS --- */}
+        <section className="featured-section">
+          <div className="section-header-modern">
+            <div className="sh-text">
+              <h2>Trending Now</h2>
+              <p>Our most popular items this week</p>
+            </div>
+            <Link to="/shop" className="btn-view-all">
+              View All <ArrowRight size={16} />
+            </Link>
+          </div>
+
+          {isLoading ? (
+            <div className="loading-state-modern">
+              <div className="spinner-large"></div>
+              <p>Curating latest deals...</p>
+            </div>
+          ) : (
+            <div className="product-grid-modern">
+              {featuredProducts.map((product) => {
+                const pId = product.id || product.productId || product._id;
+                
+                return (
+                  <div key={pId} className="product-card-modern">
+                    <div 
+                      className="pc-image-wrapper"
+                      onClick={() => navigate(`/product/${pId}`)}
+                    >
+                      <img src={product.imageUrl || product.img} alt={product.name} />
+                      {product.price < 100 && <span className="pc-badge">Hot Deal</span>}
+                    </div>
+                    
+                    <div className="pc-content">
+                      <div className="pc-meta">
+                        <span className="pc-category">{product.category || "General"}</span>
+                        <span className="pc-brand">{product.brand || ""}</span>
+                      </div>
+                      
+                      <h3 
+                        className="pc-title"
+                        onClick={() => navigate(`/product/${pId}`)}
+                      >
+                        {product.name}
+                      </h3>
+                      
+                      <div className="pc-footer">
+                        <p className="pc-price">${Number(product.price).toFixed(2)}</p>
+                        <button 
+                          className="pc-add-btn" 
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevents navigating to product page
+                            addToCart({ ...product, id: pId, quantity: 1 });
+                          }}
+                          title="Add to Cart"
+                        >
+                          <ShoppingCart size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </main>
 
       <Footer />
     </div>

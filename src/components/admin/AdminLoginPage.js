@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import '../styles/AdminLogin.css'; // Basic styling
-import Footer from '../Footer'; // Make sure Footer is imported
-import Navbar from '../Navbar'; // Make sure Navbar is imported
+import '../styles/AdminLogin.css'; 
+import Footer from '../Footer'; 
+import Navbar from '../Navbar'; 
 
-// --- CORRECTED API URL ---
-// Use a relative path. The browser will send the request to the same domain
-// the app is running on (Vercel URL in production, localhost in development).
 const API_ENDPOINT = '/api/admin/login';
 
 function AdminLoginPage({ onLogin }) {
@@ -21,55 +18,66 @@ function AdminLoginPage({ onLogin }) {
     setLoading(true);
 
     try {
-      // Use the relative endpoint here
       const response = await axios.post(API_ENDPOINT, {
         username,
         password,
       });
 
       if (response.data.success) {
-        // Pass the token to the parent App component
         onLogin(response.data.token);
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
+      setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
-  // --- WRAPPED IN A REACT FRAGMENT ---
   return (
     <>
-    <Navbar/>
-      <div className="login-container">
-        <form onSubmit={handleSubmit} className="login-form">
-          <h2>Admin Panel Login</h2>
-          {error && <p className="error-message">{error}</p>}
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+      <Navbar />
+      <div className="admin-login-wrapper">
+        <div className="admin-login-card">
+          
+          <div className="admin-login-header">
+            <h2>Admin Portal</h2>
+            <p>Enter your credentials to access the dashboard</p>
           </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+
+          {/* Upgraded Error Banner */}
+          {error && <div className="admin-error-banner">{error}</div>}
+
+          <form onSubmit={handleSubmit} className="admin-login-form">
+            <div className="admin-form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="admin@example.com"
+                required
+              />
+            </div>
+            
+            <div className="admin-form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            
+            <button type="submit" className="admin-submit-btn" disabled={loading}>
+              {loading ? <span className="btn-spinner"></span> : 'Sign In'}
+            </button>
+          </form>
+          
+        </div>
       </div>
       <Footer />
     </>
@@ -77,4 +85,3 @@ function AdminLoginPage({ onLogin }) {
 }
 
 export default AdminLoginPage;
-

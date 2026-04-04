@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Search, ShoppingCart, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
-import "../styles/ShopPage.css";
 import { useCart } from "../context/CartContext";
+import "../styles/ShopPage.css";
 
 const API_URL = 'http://localhost:5001';
 
@@ -18,7 +19,7 @@ export default function ShopPage() {
   const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 9; // Changed to 9 for a perfect 3x3 grid
 
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -35,7 +36,6 @@ export default function ShopPage() {
         }
       } catch (err) {
         setError("An error occurred while fetching products.");
-        console.error(err);
       } finally {
         setIsLoading(false);
       }
@@ -44,11 +44,7 @@ export default function ShopPage() {
   }, []);
 
   const handleCheckboxChange = (value, setter, current) => {
-    setter(
-      current.includes(value)
-        ? current.filter((v) => v !== value)
-        : [...current, value]
-    );
+    setter(current.includes(value) ? current.filter((v) => v !== value) : [...current, value]);
     setCurrentPage(1);
   };
 
@@ -81,102 +77,125 @@ export default function ShopPage() {
   }, [filteredProducts, currentPage, itemsPerPage]);
 
   return (
-    <>
+    <div className="shop-page-wrapper">
       <Navbar />
-      <div className="shop-container">
-        <aside className="filters">
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="search-filters"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
-          <div className="filter-group">
-            <h4>Category</h4>
-            {allCategories.map((cat) => (
-              <label key={cat}>
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.includes(cat)}
-                  onChange={() => handleCheckboxChange(cat, setSelectedCategories, selectedCategories)}
-                /> {cat}
-              </label>
-            ))}
+      
+      {/* Page Header */}
+      <div className="shop-hero">
+        <div className="container">
+          <h1 className="hero-title">The Collection</h1>
+          <p className="hero-subtitle">Curated essentials for your modern lifestyle.</p>
+        </div>
+      </div>
+
+      <div className="shop-main container">
+        {/* Sidebar Filters */}
+        <aside className="shop-sidebar">
+          <div className="sidebar-widget">
+            <div className="search-input-group">
+              <Search size={18} className="icon-search" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              />
+            </div>
           </div>
-          <div className="filter-group">
-            <h4>Price Range</h4>
-            {["Under $50", "$50 - $200", "$200 - $500", "$500 - Over"].map((range) => (
-              <label key={range}>
-                <input
-                  type="checkbox"
-                  checked={selectedPriceRanges.includes(range)}
-                  onChange={() => handleCheckboxChange(range, setSelectedPriceRanges, selectedPriceRanges)}
-                /> {range}
-              </label>
-            ))}
+
+          <div className="sidebar-widget">
+            <h4 className="widget-title"><Filter size={16} /> Categories</h4>
+            <div className="checkbox-list">
+              {allCategories.map((cat) => (
+                <label key={cat} className="filter-label">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(cat)}
+                    onChange={() => handleCheckboxChange(cat, setSelectedCategories, selectedCategories)}
+                  />
+                  <span className="custom-check"></span> {cat}
+                </label>
+              ))}
+            </div>
           </div>
-          <div className="filter-group">
-            <h4>Brand</h4>
-            {allBrands.map((brand) => (
-              <label key={brand}>
-                <input
-                  type="checkbox"
-                  checked={selectedBrands.includes(brand)}
-                  onChange={() => handleCheckboxChange(brand, setSelectedBrands, selectedBrands)}
-                /> {brand}
-              </label>
-            ))}
+
+          <div className="sidebar-widget">
+            <h4 className="widget-title">Price Range</h4>
+            <div className="checkbox-list">
+              {["Under $50", "$50 - $200", "$200 - $500", "$500 - Over"].map((range) => (
+                <label key={range} className="filter-label">
+                  <input
+                    type="checkbox"
+                    checked={selectedPriceRanges.includes(range)}
+                    onChange={() => handleCheckboxChange(range, setSelectedPriceRanges, selectedPriceRanges)}
+                  />
+                  <span className="custom-check"></span> {range}
+                </label>
+              ))}
+            </div>
           </div>
         </aside>
 
-        <main className="products-section">
-          <h2 className="text-3xl font-bold mb-8">Discover Our Products</h2>
-          <div className="products-grid">
+        {/* Product Section */}
+        <main className="shop-content">
+          <div className="results-toolbar">
+            <p className="results-count">Showing <span>{paginatedProducts.length}</span> of {filteredProducts.length} items</p>
+          </div>
+
+          <div className="product-grid-modern">
             {isLoading ? (
-              <div className="loading-state">Loading products...</div>
+              [...Array(6)].map((_, i) => <div key={i} className="skeleton-card"></div>)
             ) : error ? (
-              <div className="error-state">{error}</div>
+              <div className="error-box">{error}</div>
             ) : paginatedProducts.length > 0 ? (
               paginatedProducts.map((product) => (
-                <div className="product-card" key={product.id}>
-                  <img
-                    src={product.img || product.imageUrl}
-                    alt={product.name}
-                    onClick={() => navigate(`/product/${product.id}`)}
-                  />
-                  <div className="product-info">
-                    <h3>{product.name}</h3>
-                    <p className="price">${product.price.toFixed(2)}</p>
-                    {/* ✅ CRITICAL FIX: Explicitly pass dealerId to the cart */}
-                    <button onClick={() => addToCart({ 
-                      ...product, 
-                      dealerId: product.dealerId || null 
-                    })}>
-                      Add to Cart
-                    </button>
+                <div className="pro-card" key={product.id}>
+                  <div className="pro-img-box" onClick={() => navigate(`/product/${product.id}`)}>
+                    <img src={product.img || product.imageUrl} alt={product.name} />
+                  </div>
+                  <div className="pro-info-box">
+                    <span className="pro-category">{product.category}</span>
+                    <h3 className="pro-name" onClick={() => navigate(`/product/${product.id}`)}>{product.name}</h3>
+                    <div className="pro-footer">
+                      <span className="pro-price">${product.price.toFixed(2)}</span>
+                      <button 
+                        className="btn-add-cart" 
+                        onClick={() => addToCart({ ...product, dealerId: product.dealerId || null })}
+                      >
+                        <ShoppingCart size={18} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="no-results">No products found matching your filters.</p>
+              <div className="empty-state">No products found matching your criteria.</div>
             )}
           </div>
+
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="pagination">
-              <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>Prev</button>
+            <div className="pagination-pro">
+              <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>
+                <ChevronLeft size={20} />
+              </button>
               {[...Array(totalPages)].map((_, i) => (
-                <button key={i} className={currentPage === i + 1 ? "active" : ""} onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
+                <button 
+                  key={i} 
+                  className={currentPage === i + 1 ? "active" : ""} 
+                  onClick={() => setCurrentPage(i + 1)}
+                >
+                  {i + 1}
+                </button>
               ))}
-              <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>Next</button>
+              <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>
+                <ChevronRight size={20} />
+              </button>
             </div>
           )}
         </main>
       </div>
       <Footer />
-    </>
+    </div>
   );
 }

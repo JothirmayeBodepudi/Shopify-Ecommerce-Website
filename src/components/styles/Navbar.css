@@ -1,32 +1,29 @@
-/* --- Updated Navbar.css --- */
-
-:root {
-  --primary-accent: #fb923c;
-  --glass-bg: rgba(15, 23, 42, 0.9);
-  --border-light: rgba(255, 255, 255, 0.1);
-}
-
-/* 1. Main Navbar Container */
-.navbar {
-  position: fixed;
+/* --- Base Navbar Styling --- */
+.navbar-modern {
+  position: sticky;
   top: 0;
-  left: 0;
-  width: 100%;
-  height: 80px; /* Increased height for better vertical centering */
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  height: 72px;
   display: flex;
-  justify-content: space-between; /* Keeps left/right sections balanced */
   align-items: center;
-  padding: 0 6%; /* Percentage padding matches modern web standards */
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-light);
-  z-index: 9999;
-  box-sizing: border-box; /* Crucial: ensures padding doesn't break width */
-  transition: background 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* 2. Left Side Section */
+.navbar-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --- Left Side: Logo & Links --- */
 .nav-left {
   display: flex;
   align-items: center;
@@ -34,311 +31,486 @@
 }
 
 .logo {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  letter-spacing: -1px;
-  background: linear-gradient(135deg, #2a9d8f, var(--primary-accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #111827;
   text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
+  letter-spacing: -0.5px;
+}
+
+.logo span {
+  color: #2563eb;
 }
 
 .nav-links {
   display: flex;
-  gap: 25px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  gap: 24px;
 }
 
 .nav-links a {
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: #4b5563;
   font-weight: 500;
   font-size: 0.95rem;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
 .nav-links a:hover {
-  color: var(--primary-accent);
+  color: #2563eb;
 }
 
-/* 3. Right Side Section */
+/* --- Right Side: Search, Cart, Profile --- */
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 25px; /* Spacing between search box and profile button */
+  gap: 20px;
 }
 
-/* --- Search Box --- */
-.search-box {
+/* --- Search Bar --- */
+.search-container {
+  position: relative;
+  width: 320px;
+}
+
+.search-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.search-box input {
-  width: 250px;
-  padding: 10px 20px;
-  border-radius: 30px;
-  border: 1px solid var(--border-light);
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding: 10px 36px 10px 40px;
+  border-radius: 999px; /* Pill shape */
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
   outline: none;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
 }
 
-.search-box input:focus {
-  width: 300px; /* Expands on focus */
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--primary-accent);
-  box-shadow: 0 0 15px rgba(251, 146, 60, 0.15);
+.search-input-wrapper input:focus {
+  background-color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* --- Profile Button --- */
-.dropdown-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--border-light);
-  color: white;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
+.clear-search {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #9ca3af;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
+  padding: 0;
 }
 
-.dropdown-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.3);
+.clear-search:hover {
+  color: #4b5563;
 }
 
-/* 4. Responsive Fixes */
-@media (max-width: 1024px) {
-  .navbar { height: 70px; padding: 0 30px; }
-  .nav-left { gap: 20px; }
-  .nav-links { display: none; } /* Consider using a mobile menu here */
-  .search-box input { width: 180px; }
-}
-
-@media (max-width: 480px) {
-  .logo { font-size: 1.4rem; }
-  .search-box { display: none; } /* Hide search on very small screens */
-}
-/* --- Navbar.css --- */
-.navbar {
-  position: fixed;
-  top: 0;
+/* --- Search Dropdown --- */
+.search-dropdown-modern {
+  position: absolute;
+  top: 110%;
   left: 0;
   width: 100%;
-  height: 80px;
-  display: flex;
-  justify-content: space-between; /* Pushes groups to the edges */
-  align-items: center; /* Vertically centers everything */
-  padding: 0 4%;
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 1000;
-  box-sizing: border-box;
-}
-
-/* Left Group: Logo + Main Nav */
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 35px;
-}
-
-.logo {
-  font-size: 1.8rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #2a9d8f, #fb923c);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-decoration: none;
-}
-
-.nav-links {
-  display: flex;
-  gap: 20px;
-  list-style: none;
-  margin: 0;
-}
-
-.nav-links a {
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-.nav-links a:hover { color: #fb923c; }
-
-/* Right Group: Search + User Profile */
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.search-box input {
-  width: 240px;
-  padding: 10px 15px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  outline: none;
-}
-
-.dropdown-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 8px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  white-space: nowrap; /* Prevents name from wrapping */
-}
-
-/* --- Search Dropdown Container --- */
-.search-dropdown {
-  position: absolute;
-  top: calc(100% + 10px); /* Sits right below the search box */
-  right: 0;
-  width: 350px; /* Width of the results box */
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-light);
-  border-radius: 15px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-  z-index: 10000;
+  z-index: 1001;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-/* --- Individual Search Item --- */
-.search-item {
+.dropdown-header {
+  padding: 10px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.search-item-modern {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 12px 15px;
+  gap: 12px;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: background 0.2s ease;
-  border-bottom: 1px solid var(--border-light);
+  transition: background 0.2s;
+  border-bottom: 1px solid #f3f4f6;
 }
 
-.search-item:last-child {
+.search-item-modern:last-child {
   border-bottom: none;
 }
 
-.search-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+.search-item-modern:hover {
+  background: #eff6ff;
 }
 
-/* --- IMAGE SIZE ADJUSTMENT --- */
-.search-item img {
-  width: 50px;           /* Change this to adjust width */
-  height: 50px;          /* Change this to adjust height */
-  object-fit: cover;     /* Prevents stretching */
-  border-radius: 8px;    /* Optional: rounded corners for thumbnails */
-  background: white;     /* Good if your product images have transparency */
-  flex-shrink: 0;        /* Prevents image from squishing */
+.search-item-modern img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
 }
 
-/* --- Search Item Text Styling --- */
-.search-item .name {
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis; /* Cuts off long names with ... */
-}
-
-.search-item .price {
-  color: var(--primary-accent);
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin: 4px 0 0 0;
-}
-
-/* --- Profile Dropdown Wrapper --- */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-/* --- The Menu Box --- */
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + 12px); /* Space below the button */
-  right: 0;
-  width: 220px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: 10px;
+.item-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-  z-index: 10001;
-  animation: dropdownFade 0.2s ease-out;
 }
 
-@keyframes dropdownFade {
+.item-name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.item-price {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+/* --- Cart Icon --- */
+.nav-icon-btn {
+  position: relative;
+  color: #4b5563;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-icon-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.cart-badge {
+  position: absolute;
+  top: 2px;
+  right: 0px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid white;
+}
+
+/* --- Profile Dropdown --- */
+.profile-dropdown-container {
+  position: relative;
+}
+
+.profile-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+
+.profile-trigger:hover {
+  background: #f3f4f6;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.profile-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.chevron {
+  color: #9ca3af;
+  transition: transform 0.2s;
+}
+
+.chevron.rotate {
+  transform: rotate(180deg);
+}
+
+.profile-dropdown-menu {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  width: 240px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  padding: 8px 0;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Individual Menu Items --- */
-.menu-item {
-  text-decoration: none;
-  color: rgba(255, 255, 255, 0.85);
+.menu-welcome {
   padding: 12px 16px;
+}
+
+.menu-welcome p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.menu-welcome h4 {
+  margin: 4px 0 0 0;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.menu-divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin: 8px 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  color: #4b5563;
+  text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  display: block; /* Ensures it fills the width */
-  border: none;
   background: transparent;
+  border: none;
+  width: 100%;
   text-align: left;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--primary-accent);
-  transform: translateX(5px); /* Subtle slide effect */
+  background: #f9fafb;
+  color: #111827;
 }
 
-/* --- Special Styling for Logout --- */
 .logout-btn {
-  margin-top: 6px;
-  border-top: 1px solid var(--border-light);
-  padding-top: 14px;
-  color: #ef4444; /* Soft red for logout */
-  font-weight: 600;
+  color: #dc2626;
 }
 
 .logout-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #f87171;
-  transform: none; /* No slide for logout */
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
-/* --- Admin Login Highlight --- */
-.menu-item[href*="admin"] {
-  color: #38bdf8; /* Soft blue to differentiate Admin section */
+/* --- Login Button --- */
+.nav-login-btn {
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nav-login-btn:hover {
+  background: #374151;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 900px) {
+  .search-container { width: 200px; }
+  .nav-links { display: none; } /* Hide links on tablet/mobile for now */
+  .profile-name { display: none; }
+}
+/* Container for clear and mic buttons */
+.search-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 10px;
+}
+
+.mic-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 5px;
+  border-radius: 50%;
+}
+
+.mic-btn:hover {
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.mic-btn.active {
+  color: #ef4444; /* Red color when listening */
+  background-color: #fef2f2;
+  animation: pulse-mic 1.5s infinite;
+}
+
+.listening-glow {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+@keyframes pulse-mic {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Ensure search input doesn't overlap actions */
+.search-input-wrapper input {
+  padding-right: 70px !important; 
+}
+/* --- Search Actions (Clear & Mic) --- */
+.search-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 12px;
+}
+
+.mic-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 6px;
+  border-radius: 50%;
+}
+
+.mic-btn:hover {
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+/* Pulsing effect when Voice Search is active */
+.mic-btn.active {
+  color: #ef4444;
+  background-color: #fef2f2;
+  animation: pulse-mic 1.5s infinite;
+}
+
+.listening-glow {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+}
+
+@keyframes pulse-mic {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* --- Chatbot Nav Button --- */
+.chat-nav-btn {
+  position: relative;
+  background: none;
+  border: none;
+  color: #1e293b;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-nav-btn:hover, 
+.chat-nav-btn.active {
+  background-color: #f1f5f9;
+  color: #2563eb;
+}
+
+/* "Online" status indicator for the bot */
+.dot-indicator {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background-color: #10b981; /* Success Green */
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #10b981;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+  .profile-name {
+    display: none; /* Hide name on mobile to save space */
+  }
+  
+  .search-container {
+    max-width: 180px;
+  }
+  
+  .nav-links {
+    display: none; /* Usually handled by a hamburger menu on mobile */
+  }
+}
+
+/* Ensure the Chatbot window doesn't get hidden behind other elements */
+.chatbot-fixed-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 10000;
 }

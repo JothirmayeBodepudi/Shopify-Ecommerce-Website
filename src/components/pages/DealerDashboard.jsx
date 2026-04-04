@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/DealerDashboard.css";
 import axios from "axios";
+import { 
+  Store, Package, PlusCircle, ShoppingCart, 
+  LogOut, Edit3, Trash2, UploadCloud, Image as ImageIcon 
+} from "lucide-react";
+import "../styles/DealerDashboard.css";
 
 const API_BASE = "http://localhost:5001";
 
@@ -36,10 +40,9 @@ function AddProductForm({ dealerId, dealerInfo }) {
     formData.append("image", file);
 
     try {
-      // Note: If using JWT for dealers, add headers: { Authorization: `Bearer ${token}` }
       const res = await axios.post(`${API_BASE}/api/dealer/products`, formData);
       if (res.data.success) {
-        setMessage("✅ Product uploaded successfully!");
+        setMessage("✅ Product published successfully!");
         e.target.reset();
         setName(""); setPrice(""); setCategory(""); setBrand(""); setDescription(""); setFile(null);
       }
@@ -47,57 +50,73 @@ function AddProductForm({ dealerId, dealerInfo }) {
       setMessage(`❌ Error: ${err.response?.data?.error || err.message}`);
     } finally {
       setIsUploading(false);
+      setTimeout(() => setMessage(""), 5000); // Clear message after 5s
     }
   };
 
   return (
-    <div className="form-card product-upload-container">
-      <h2>Add a New Product</h2>
-      <p>Listings appear as: <strong>{dealerInfo?.company || dealerInfo?.name}</strong></p>
+    <div className="dealer-card fade-in">
+      <div className="card-header-block">
+        <h2>Create New Listing</h2>
+        <p>Listing as: <span className="font-semibold text-blue-600">{dealerInfo?.company || dealerInfo?.name}</span></p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="product-upload-form">
-        <div className="form-group full-width">
-          <label>Product Name</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Wireless Headphones" required />
+      {message && <div className={`alert-banner ${message.includes('✅') ? 'success' : 'error'}`}>{message}</div>}
+
+      <form onSubmit={handleSubmit} className="professional-form">
+        <div className="form-grid">
+          <div className="form-group full-width">
+            <label>Product Name <span className="required">*</span></label>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Wireless Noise-Cancelling Headphones" required />
+          </div>
+
+          <div className="form-group">
+            <label>Price ($) <span className="required">*</span></label>
+            <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" step="0.01" placeholder="0.00" required />
+          </div>
+
+          <div className="form-group">
+            <label>Category</label>
+            <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g., Electronics" />
+          </div>
+
+          <div className="form-group">
+            <label>Brand</label>
+            <input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="e.g., Sony" />
+          </div>
+
+          <div className="form-group full-width">
+            <label>Description</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Highlight the key features and specifications..." rows="4" />
+          </div>
+
+          <div className="form-group full-width">
+            <label>Product Image <span className="required">*</span></label>
+            <div className="file-upload-zone">
+              <input type="file" id="file-upload" accept="image/*" onChange={(e) => setFile(e.target.files[0])} required hidden />
+              <label htmlFor="file-upload" className="file-upload-label">
+                <UploadCloud size={32} className="upload-icon" />
+                <span className="upload-text">{file ? file.name : "Click to browse or drag and drop an image"}</span>
+                <span className="upload-hint">PNG, JPG up to 5MB</span>
+              </label>
+            </div>
+          </div>
         </div>
 
-        <div className="form-group">
-          <label>Price ($)</label>
-          <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="0.00" required />
-        </div>
-
-        <div className="form-group">
-          <label>Category</label>
-          <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Electronics" />
-        </div>
-
-        <div className="form-group">
-          <label>Brand</label>
-          <input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="e.g. Sony" />
-        </div>
-
-        <div className="form-group full-width">
-          <label>Description</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tell customers about your product..." />
-        </div>
-
-        <div className="form-group file-upload-wrapper">
-          <label>Product Image</label>
-          <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} required />
-        </div>
-
-        <div className="submit-btn-wrapper">
-          <button type="submit" className="submit-btn" disabled={isUploading}>
-            {isUploading ? "Uploading..." : "Publish Product"}
+        <div className="form-actions border-t mt-6 pt-6">
+          <button type="submit" className="btn-primary" disabled={isUploading}>
+            {isUploading ? <span className="spinner-small"></span> : <PlusCircle size={18} />}
+            {isUploading ? "Publishing..." : "Publish Product"}
           </button>
         </div>
       </form>
-
-      {message && <div className={`form-message ${message.includes('✅') ? 'success' : 'error'}`}>{message}</div>}
     </div>
   );
 }
 
+/* =========================================================
+   VIEW MY PRODUCTS
+========================================================= */
 function ViewMyProducts({ dealerId }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -117,9 +136,8 @@ function ViewMyProducts({ dealerId }) {
 
   useEffect(() => { fetchProducts(); }, [dealerId]);
 
-  /* -------- DELETE -------- */
   const handleDelete = async (productId) => {
-    if (!window.confirm("Delete this product?")) return;
+    if (!window.confirm("Are you sure you want to permanently delete this product?")) return;
     try {
       await axios.delete(`${API_BASE}/api/dealer/products/${productId}`);
       fetchProducts();
@@ -128,17 +146,9 @@ function ViewMyProducts({ dealerId }) {
     }
   };
 
-  /* -------- EDIT -------- */
-  const handleEdit = (product) => {
-    setEditingProduct(product);
-  };
-
   const handleUpdate = async () => {
     try {
-      await axios.put(
-        `${API_BASE}/api/dealer/products/${editingProduct.productId}`,
-        editingProduct
-      );
+      await axios.put(`${API_BASE}/api/dealer/products/${editingProduct.productId}`, editingProduct);
       setEditingProduct(null);
       fetchProducts();
     } catch (err) {
@@ -146,95 +156,79 @@ function ViewMyProducts({ dealerId }) {
     }
   };
 
-  if (loading) return <p>Loading your products...</p>;
+  if (loading) return <div className="p-8 text-center text-gray-500">Loading your inventory...</div>;
 
   return (
-    <div className="form-card">
-      <h2>My Inventory</h2>
+    <div className="dealer-card fade-in">
+      <div className="card-header-block flex-between">
+        <h2>My Inventory</h2>
+        <span className="badge-count">{products.length} Products</span>
+      </div>
 
       {products.length === 0 ? (
-        <p>No products found.</p>
+        <div className="empty-state-modern">
+          <Package size={48} className="empty-icon" />
+          <h3>Your inventory is empty</h3>
+          <p>You haven't listed any products yet. Get started by adding your first product.</p>
+        </div>
       ) : (
-        <table className="dealer-table">
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((p) => (
-              <tr key={p.productId}>
-                <td>
-                  <img src={p.imageUrl} alt={p.name} className="table-img" />
-                </td>
-                <td>{p.name}</td>
-                <td>${p.price}</td>
-                <td>
-                  <button
-                    className="btn-edit"
-                    onClick={() => handleEdit(p)}
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDelete(p.productId)}
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className="table-responsive">
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Product Info</th>
+                <th>Price</th>
+                <th className="text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <tr key={p.productId}>
+                  <td className="img-cell">
+                    {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="product-thumbnail" /> : <ImageIcon className="placeholder-icon" />}
+                  </td>
+                  <td>
+                    <div className="product-title">{p.name}</div>
+                    <div className="product-meta">{p.category || 'Uncategorized'} • {p.brand || 'No Brand'}</div>
+                  </td>
+                  <td className="font-semibold text-gray-800">${Number(p.price).toFixed(2)}</td>
+                  <td className="actions-cell text-right">
+                    <button className="icon-btn edit" onClick={() => setEditingProduct(p)} title="Edit"><Edit3 size={16} /></button>
+                    <button className="icon-btn delete" onClick={() => handleDelete(p.productId)} title="Delete"><Trash2 size={16} /></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
-      {/* ================= EDIT MODAL ================= */}
+      {/* EDIT MODAL */}
       {editingProduct && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Edit Product</h3>
-
-            <input
-              type="text"
-              value={editingProduct.name}
-              onChange={(e) =>
-                setEditingProduct({ ...editingProduct, name: e.target.value })
-              }
-            />
-
-            <input
-              type="number"
-              value={editingProduct.price}
-              onChange={(e) =>
-                setEditingProduct({ ...editingProduct, price: e.target.value })
-              }
-            />
-
-            <textarea
-              value={editingProduct.description}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  description: e.target.value,
-                })
-              }
-            />
-
-            <div className="modal-actions">
-              <button className="btn-save" onClick={handleUpdate}>
-                Save
-              </button>
-              <button
-                className="btn-cancel"
-                onClick={() => setEditingProduct(null)}
-              >
-                Cancel
-              </button>
+        <div className="modern-modal-overlay">
+          <div className="modern-modal-content">
+            <div className="modal-header">
+              <h3>Edit Product</h3>
+              <button className="close-btn" onClick={() => setEditingProduct(null)}>×</button>
+            </div>
+            <div className="modal-body form-grid">
+              <div className="form-group full-width">
+                <label>Product Name</label>
+                <input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
+              </div>
+              <div className="form-group full-width">
+                <label>Price ($)</label>
+                <input type="number" step="0.01" value={editingProduct.price} onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })} />
+              </div>
+              <div className="form-group full-width">
+                <label>Description</label>
+                <textarea rows="4" value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setEditingProduct(null)}>Cancel</button>
+              <button className="btn-primary" onClick={handleUpdate}>Save Changes</button>
             </div>
           </div>
         </div>
@@ -242,8 +236,9 @@ function ViewMyProducts({ dealerId }) {
     </div>
   );
 }
+
 /* =========================================================
-   VIEW ORDERS (OWNERSHIP TRACKING)
+   VIEW ORDERS
 ========================================================= */
 function ViewMyOrders({ dealerId }) {
   const [orders, setOrders] = useState([]);
@@ -252,7 +247,6 @@ function ViewMyOrders({ dealerId }) {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      // Fetches orders where at least one item belongs to this dealerId
       const res = await axios.get(`${API_BASE}/api/vendor/orders/${dealerId}`);
       setOrders(res.data.orders || []);
     } catch (err) {
@@ -266,13 +260,11 @@ function ViewMyOrders({ dealerId }) {
 
   const updateStatus = async (orderId, status) => {
     try {
-      // Sends update to the ownership-protected backend route
       const res = await axios.put(`${API_BASE}/api/vendor/orders/${orderId}/status`, 
         { status },
-        { headers: { "X-Dealer-Id": dealerId } } // Passing dealerId for validation if not using JWT
+        { headers: { "X-Dealer-Id": dealerId } }
       );
       if (res.data.success) {
-        alert("✅ Tracking status updated.");
         fetchOrders();
       }
     } catch (err) {
@@ -280,63 +272,81 @@ function ViewMyOrders({ dealerId }) {
     }
   };
 
-  if (loading) return <p>Loading orders...</p>;
+  if (loading) return <div className="p-8 text-center text-gray-500">Loading orders...</div>;
 
   return (
-    <div className="form-card">
-      <h2>Sales & Tracking</h2>
-      {orders.length === 0 ? <p>No orders for your products yet.</p> : (
-        <table className="dealer-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>My Items</th>
-              <th>Customer</th>
-              <th>Total (Order)</th>
-              <th>Tracking Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((o) => {
-              // Filter items to only show the ones belonging to THIS dealer
-              const myItems = o.items.filter(item => item.dealerId === dealerId);
-              
-              return (
-                <tr key={o.orderId}>
-                  <td><small>{o.orderId}</small></td>
-                  <td>
-                    {myItems.map((item, idx) => (
-                      <div key={idx} className="order-item-mini">
-                        {item.name} (x{item.quantity})
+    <div className="dealer-card fade-in">
+      <div className="card-header-block flex-between">
+        <h2>Sales & Fulfillment</h2>
+        <span className="badge-count">{orders.length} Active Orders</span>
+      </div>
+      
+      {orders.length === 0 ? (
+        <div className="empty-state-modern">
+          <ShoppingCart size={48} className="empty-icon" />
+          <h3>No orders yet</h3>
+          <p>When customers purchase your products, they will appear here.</p>
+        </div>
+      ) : (
+        <div className="table-responsive">
+          <table className="modern-table align-top">
+            <thead>
+              <tr>
+                <th>Order Details</th>
+                <th>Items to Fulfill</th>
+                <th>Customer</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((o) => {
+                const myItems = o.items.filter(item => item.dealerId === dealerId);
+                const orderDate = new Date(o.createdAt).toLocaleDateString();
+                
+                return (
+                  <tr key={o.orderId}>
+                    <td>
+                      <div className="order-id-badge">#{o.orderId.substring(o.orderId.length - 6)}</div>
+                      <div className="text-sm text-gray-500 mt-1">{orderDate}</div>
+                    </td>
+                    <td>
+                      <div className="order-items-list">
+                        {myItems.map((item, idx) => (
+                          <div key={idx} className="order-item-pill">
+                            <span className="qty">x{item.quantity}</span> {item.name}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </td>
-                  <td>{o.shipping?.name || "Customer"}</td>
-                  <td>₹{o.totalAmount}</td>
-                  <td>
-                    <select
-                      className="status-select"
-                      value={o.status}
-                      onChange={(e) => updateStatus(o.orderId, e.target.value)}
-                    >
-                      <option value="Processing">Processing</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Out for Delivery">Out for Delivery</option>
-                      <option value="Delivered">Delivered</option>
-                    </select>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </td>
+                    <td>
+                      <div className="font-medium text-gray-800">{o.shipping?.name || "Customer"}</div>
+                      <div className="text-sm text-gray-500">{o.shipping?.city || ''}</div>
+                    </td>
+                    <td>
+                      <select
+                        className={`status-select-modern status-${o.status?.toLowerCase().replace(/\s+/g, '-')}`}
+                        value={o.status}
+                        onChange={(e) => updateStatus(o.orderId, e.target.value)}
+                      >
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Out for Delivery">Out for Delivery</option>
+                        <option value="Delivered">Delivered</option>
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
 }
 
 /* =========================================================
-   MAIN DASHBOARD
+   MAIN DASHBOARD LAYOUT
 ========================================================= */
 export default function DealerDashboard() {
   const [dealerInfo, setDealerInfo] = useState(null);
@@ -371,32 +381,62 @@ export default function DealerDashboard() {
     navigate("/dealer-login");
   };
 
-  if (loading) return <div className="loading-screen">Authenticating...</div>;
+  if (loading) return <div className="h-screen w-full flex items-center justify-center text-gray-600 bg-gray-50">Authenticating...</div>;
 
   return (
-    <div className="dealer-dashboard-layout">
-      <aside className="dealer-sidebar">
-        <div className="sidebar-header">
-          <h2>Dealer Panel</h2>
-          <p>Welcome, <strong>{dealerInfo?.company || dealerInfo?.name}</strong></p>
+    <div className="b2b-dashboard-layout">
+      {/* Sidebar */}
+      <aside className="b2b-sidebar">
+        <div className="sidebar-brand">
+          <Store size={24} className="brand-icon" />
+          <h2>Vendor Portal</h2>
         </div>
-        <nav className="sidebar-nav">
-          <button className={activeView === "viewProducts" ? "active" : ""} onClick={() => setActiveView("viewProducts")}>My Products</button>
-          <button className={activeView === "addProduct" ? "active" : ""} onClick={() => setActiveView("addProduct")}>Add Product</button>
-          <button className={activeView === "viewOrders" ? "active" : ""} onClick={() => setActiveView("viewOrders")}>Manage Orders</button>
+        
+        <div className="sidebar-user-block">
+          <div className="user-avatar">{dealerInfo?.company?.charAt(0) || dealerInfo?.name?.charAt(0) || 'V'}</div>
+          <div className="user-details">
+            <div className="user-company">{dealerInfo?.company || dealerInfo?.name}</div>
+            <div className="user-role">Verified Vendor</div>
+          </div>
+        </div>
+
+        <nav className="b2b-nav">
+          <div className="nav-label">Inventory Management</div>
+          <button className={`nav-btn ${activeView === "viewProducts" ? "active" : ""}`} onClick={() => setActiveView("viewProducts")}>
+            <Package size={18} /> My Inventory
+          </button>
+          <button className={`nav-btn ${activeView === "addProduct" ? "active" : ""}`} onClick={() => setActiveView("addProduct")}>
+            <PlusCircle size={18} /> New Listing
+          </button>
+
+          <div className="nav-label mt-6">Sales</div>
+          <button className={`nav-btn ${activeView === "viewOrders" ? "active" : ""}`} onClick={() => setActiveView("viewOrders")}>
+            <ShoppingCart size={18} /> Manage Orders
+          </button>
         </nav>
+
         <div className="sidebar-footer">
-          <button onClick={handleLogout} className="logout-button">Logout</button>
+          <button onClick={handleLogout} className="nav-btn logout-btn">
+            <LogOut size={18} /> Sign Out
+          </button>
         </div>
       </aside>
 
-      <main className="dealer-main-content">
-        <header className="content-header">
-            <h1>{activeView === "viewProducts" ? "Inventory" : activeView === "addProduct" ? "New Listing" : "Orders"}</h1>
+      {/* Main Area */}
+      <main className="b2b-main">
+        <header className="b2b-topbar">
+          <h1 className="page-title">
+            {activeView === "viewProducts" && "Inventory Overview"}
+            {activeView === "addProduct" && "Create Product Listing"}
+            {activeView === "viewOrders" && "Order Fulfillment"}
+          </h1>
         </header>
-        {activeView === "viewProducts" && <ViewMyProducts dealerId={dealerId} />}
-        {activeView === "addProduct" && <AddProductForm dealerId={dealerId} dealerInfo={dealerInfo} />}
-        {activeView === "viewOrders" && <ViewMyOrders dealerId={dealerId} />}
+        
+        <div className="b2b-content-area">
+          {activeView === "viewProducts" && <ViewMyProducts dealerId={dealerId} />}
+          {activeView === "addProduct" && <AddProductForm dealerId={dealerId} dealerInfo={dealerInfo} />}
+          {activeView === "viewOrders" && <ViewMyOrders dealerId={dealerId} />}
+        </div>
       </main>
     </div>
   );

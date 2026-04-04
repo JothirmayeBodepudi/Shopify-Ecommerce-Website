@@ -2,12 +2,21 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "./context/CartContext";
 import { useAuth } from "react-oidc-context";
+import { 
+  Search, ShoppingBag, User, ChevronDown, 
+  LogOut, Heart, Package, ShieldCheck, X, Mic, Loader2,
+  MessageSquareText 
+} from "lucide-react";
+import Chatbot from "./pages/Chatbot"; 
 import "./styles/Navbar.css";
 
 export default function Navbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false); 
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [isListening, setIsListening] = useState(false);
+  
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
 
@@ -22,14 +31,36 @@ export default function Navbar() {
     auth.signoutRedirect();
   };
 
+  // --- 🎙️ VOICE SEARCH LOGIC ---
+  const handleVoiceSearch = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Voice search is not supported in this browser. Please try Chrome.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setQuery(transcript); 
+    };
+
+    recognition.start();
+  };
+
   // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target) &&
-        searchRef.current &&
-        !searchRef.current.contains(event.target)
+        dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+        searchRef.current && !searchRef.current.contains(event.target)
       ) {
         setShowProfileMenu(false);
         setSuggestions([]);
@@ -39,7 +70,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🔍 SMART SEARCH HANDLER
+  // 🔍 SMART SEARCH HANDLER (Debounced)
   useEffect(() => {
     if (query.trim().length < 2) {
       setSuggestions([]);
@@ -48,94 +79,146 @@ export default function Navbar() {
 
     const delayDebounce = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `http://localhost:5001/api/search?q=${query}`
-        );
+        const res = await fetch(`http://localhost:5001/api/search?q=${query}`);
         const data = await res.json();
         setSuggestions(data);
       } catch (err) {
         console.error("Search failed", err);
       }
-    }, 300); // debounce
+    }, 300);
 
     return () => clearTimeout(delayDebounce);
   }, [query]);
 
   return (
-    <nav className="navbar">
-      {/* LEFT */}
-      <div className="nav-left">
-        <div className="logo">ShopEase</div>
-        <div className="nav-links">
-          <Link to="/home">Home</Link>
-          <Link to="/shop">Shop</Link>
-          <Link to="/cart">Cart ({totalItems})</Link>
-          <Link to="/contact">Contact</Link>
-        </div>
-      </div>
-
-      {/* RIGHT */}
-      <div className="nav-right">
-        {/* 🔍 SEARCH BOX */}
-        <div className="search-box" ref={searchRef}>
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-
-          {/* SEARCH DROPDOWN */}
-          {suggestions.length > 0 && (
-            <div className="search-dropdown">
-              {suggestions.map((item) => (
-                <div
-                  key={item.id}
-                  className="search-item"
-                  onClick={() => {
-                    setQuery("");
-                    setSuggestions([]);
-                    navigate(`/product/${item.id}`);
-                  }}
-                >
-                  <img src={item.img} alt={item.name} />
-                  <div>
-                    <p className="name">{item.name}</p>
-                    <p className="price">${item.price.toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
+    <>
+      <nav className="navbar-modern">
+        <div className="navbar-container">
+          
+          {/* LEFT: Logo & Links */}
+          <div className="nav-left">
+            <Link to="/home" className="logo">
+              Shop<span>Ease</span>
+            </Link>
+            <div className="nav-links">
+              <Link to="/home">Home</Link>
+              <Link to="/shop">Shop</Link>
+              <Link to="/contact">Contact</Link>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* PROFILE */}
-        {auth.isAuthenticated ? (
-          <div className="dropdown" ref={dropdownRef}>
-            <button
-              onClick={() => setShowProfileMenu((prev) => !prev)}
-              className="dropdown-btn"
-            >
-              {auth.user?.profile.name || "Profile"} ⌄
-            </button>
-            {showProfileMenu && (
-              <div className="dropdown-menu">
-                <Link to="/profile/view" className="menu-item">View Profile</Link>
-                <Link to="/profile/orders" className="menu-item">My Orders</Link>
-                <Link to="/profile/wishlist" className="menu-item">Wishlist</Link>
-                <Link to="/admin/login" className="menu-item">Admin Login</Link>
-                <button onClick={handleLogout} className="menu-item logout-btn">
-                  Logout
-                </button>
+          {/* RIGHT: Actions */}
+          <div className="nav-right">
+            
+            {/* 🔍 SEARCH BOX */}
+            <div className="search-container" ref={searchRef}>
+              <div className={`search-input-wrapper ${isListening ? "listening-glow" : ""}`}>
+                <Search size={18} className="search-icon" />
+                <input
+                  type="text"
+                  placeholder={isListening ? "Listening..." : "Search products..."}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                      if(e.key === 'Enter' && query) navigate(`/search?q=${query}`);
+                  }}
+                />
+                
+                <div className="search-actions">
+                  {query && (
+                    <button className="clear-search" onClick={() => setQuery("")}>
+                      <X size={16} />
+                    </button>
+                  )}
+                  <button 
+                    className={`mic-btn ${isListening ? "active" : ""}`} 
+                    onClick={handleVoiceSearch}
+                    title="Search by voice"
+                  >
+                    {isListening ? <Loader2 size={18} className="animate-spin" /> : <Mic size={18} />}
+                  </button>
+                </div>
               </div>
+
+              {/* Suggestions Dropdown */}
+              {suggestions.length > 0 && (
+                <div className="search-dropdown-modern">
+                  <div className="dropdown-header">Products</div>
+                  {suggestions.map((item) => (
+                    <div
+                      key={item.id}
+                      className="search-item-modern"
+                      onClick={() => {
+                        setQuery("");
+                        setSuggestions([]);
+                        navigate(`/product/${item.id}`);
+                      }}
+                    >
+                      <img src={item.img} alt={item.name} />
+                      <div className="item-info">
+                        <p className="item-name">{item.name}</p>
+                        <p className="item-price">${item.price.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 🤖 CHATBOT TOGGLE */}
+            <button 
+              className={`nav-icon-btn chat-nav-btn ${isChatOpen ? "active" : ""}`}
+              onClick={() => setIsChatOpen(!isChatOpen)}
+              title="Customer Assistant"
+            >
+              <MessageSquareText size={22} />
+              <span className="dot-indicator"></span>
+            </button>
+
+            {/* 🛒 CART ICON */}
+            <Link to="/cart" className="nav-icon-btn cart-btn">
+              <ShoppingBag size={22} />
+              {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
+            </Link>
+
+            {/* 👤 PROFILE */}
+            {auth.isAuthenticated ? (
+              <div className="profile-dropdown-container" ref={dropdownRef}>
+                <button onClick={() => setShowProfileMenu((prev) => !prev)} className="profile-trigger">
+                  <div className="avatar">
+                    {auth.user?.profile.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                  <span className="profile-name">
+                    {auth.user?.profile.name?.split(" ")[0] || "Profile"}
+                  </span>
+                  <ChevronDown size={16} className={`chevron ${showProfileMenu ? "rotate" : ""}`} />
+                </button>
+
+                {showProfileMenu && (
+                  <div className="profile-dropdown-menu">
+                    <div className="menu-welcome">
+                      <p>Welcome back,</p>
+                      <h4>{auth.user?.profile.name || "User"}</h4>
+                    </div>
+                    <div className="menu-divider"></div>
+                    <Link to="/profile/view" className="menu-item" onClick={() => setShowProfileMenu(false)}><User size={16} /> My Account</Link>
+                    <Link to="/profile/orders" className="menu-item" onClick={() => setShowProfileMenu(false)}><Package size={16} /> My Orders</Link>
+                    <Link to="/profile/wishlist" className="menu-item" onClick={() => setShowProfileMenu(false)}><Heart size={16} /> Wishlist</Link>
+                    <Link to="/admin/login" className="menu-item" onClick={() => setShowProfileMenu(false)}><ShieldCheck size={16} /> Admin Portal</Link>
+                    <div className="menu-divider"></div>
+                    <button onClick={handleLogout} className="menu-item logout-btn"><LogOut size={16} /> Sign Out</button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button className="nav-login-btn" onClick={() => auth.signinRedirect()}>Log In</button>
             )}
           </div>
-        ) : (
-          <button className="login-btn" onClick={() => auth.signinRedirect()}>
-            Login
-          </button>
-        )}
-      </div>
-    </nav>
+        </div>
+      </nav>
+
+      {/* 🤖 FLOATING CHATBOT COMPONENT */}
+      <Chatbot isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
+    </>
   );
 }

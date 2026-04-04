@@ -1,87 +1,127 @@
-// src/components/pages/ProfilePage.js
-
 import React from "react";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 import { useAuth } from "react-oidc-context";
-import '../styles/ProfilePage.css'; // Import the CSS file
+import { User, Mail, Phone, ShieldCheck, Calendar, LogOut, Settings, Bell } from "lucide-react";
+import '../styles/ProfilePage.css';
 
 const ProfilePage = () => {
     const auth = useAuth();
 
-    // Show a loading message while auth is being checked
     if (auth.isLoading) {
         return (
-            <div className="profile-page">
+            <div className="profile-loading">
                 <Navbar />
-                <main className="profile-content"><p>Loading profile...</p></main>
+                <div className="spinner-container"><div className="pro-spinner"></div></div>
                 <Footer />
             </div>
         );
     }
 
-    // Handle the case where the user is not logged in
     if (!auth.isAuthenticated || !auth.user) {
         return (
-            <div className="profile-page">
+            <div className="profile-page-wrapper">
                 <Navbar />
-                <main className="profile-content">
-                    <div className="profile-card">
-                        <h2>Profile</h2>
-                        <p>Please log in to view your profile.</p>
+                <div className="auth-fallback">
+                    <div className="fallback-card">
+                        <User size={48} className="text-slate-300" />
+                        <h2>Access Restricted</h2>
+                        <p>Please log in to manage your account and view your personal details.</p>
+                        <button className="btn-login-pro" onClick={() => auth.signinRedirect()}>Sign In Now</button>
                     </div>
-                </main>
+                </div>
                 <Footer />
             </div>
         );
     }
 
     const { profile } = auth.user;
-    const getInitials = (name) => (name ? name.charAt(0).toUpperCase() : '?');
+    const initials = profile?.name ? profile.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
 
     return (
-        <div className="profile-page">
+        <div className="profile-page-wrapper">
             <Navbar />
-            <main className="profile-content">
-                <div className="profile-card">
-                    <div className="profile-header">
-                        <div className="profile-avatar">
-                            {profile.picture ? (
-                                <img src={profile?.picture} alt="Profile" />
-                            ) : (
-                                <span>{getInitials(profile.name)}</span>
-                            )}
-                        </div>
-                        <div className="profile-info">
-                            <h2>{profile?.name || 'User Profile'}</h2>
-                            <p>{profile?.email}</p>
-                        </div>
+            
+            <main className="profile-container container">
+                {/* Header Section */}
+                <header className="profile-hero">
+                    <div className="hero-avatar-wrapper">
+                        {profile.picture ? (
+                            <img src={profile.picture} alt="Avatar" className="pro-avatar" />
+                        ) : (
+                            <div className="pro-avatar-initials">{initials}</div>
+                        )}
                     </div>
+                    <div className="hero-text">
+                        <h1>{profile.name}</h1>
+                        <p className="profile-tagline">Manage your account settings and preferences.</p>
+                    </div>
+                </header>
 
-                    <ul className="profile-details">
-                        <li>
-                            <strong>Email Verified:</strong> 
-                            <span>{String(profile?.email_verified)}</span>
-                        </li>
-                        {profile.phone_number && (
-                            <li>
-                                <strong>Phone Number:</strong> 
-                                <span>{profile?.phone_number}</span>
-                            </li>
-                        )}
-                        {profile.preferred_username && (
-                            <li>
-                                <strong>Username:</strong> 
-                                <span>{profile?.preferred_username}</span>
-                            </li>
-                        )}
-                    </ul>
+                <div className="profile-grid">
+                    {/* Sidebar Nav */}
+                    <aside className="profile-sidebar">
+                        <nav className="side-nav">
+                            <button className="nav-item active"><User size={18} /> Personal Info</button>
+                            {/* <button className="nav-item"><ShieldCheck size={18} /> Security</button>
+                            <button className="nav-item"><Bell size={18} /> Notifications</button>
+                            <button className="nav-item"><Settings size={18} /> Account Settings</button> */}
+                            <div className="nav-divider"></div>
+                            <button className="nav-item logout" onClick={() => auth.signoutRedirect()}>
+                                <LogOut size={18} /> Sign Out
+                            </button>
+                        </nav>
+                    </aside>
 
-                    <button className="logout-button" onClick={() => auth.signoutRedirect()}>
-                        Sign Out
-                    </button>
+                    {/* Main Content Area */}
+                    <div className="profile-main-content">
+                        <section className="profile-section-card">
+                            <div className="section-header">
+                                <h3>Account Information</h3>
+                            </div>
+                            
+                            <div className="details-grid">
+                                <div className="detail-item">
+                                    <div className="detail-icon"><Mail size={20} /></div>
+                                    <div className="detail-text">
+                                        <label>Email Address</label>
+                                        <p>{profile.email} {profile.email_verified && <span className="verified-badge">Verified</span>}</p>
+                                    </div>
+                                </div>
+
+                                <div className="detail-item">
+                                    <div className="detail-icon"><Calendar size={20} /></div>
+                                    <div className="detail-text">
+                                        <label>Account Status</label>
+                                        <p>Active Member</p>
+                                    </div>
+                                </div>
+
+                                {profile.phone_number && (
+                                    <div className="detail-item">
+                                        <div className="detail-icon"><Phone size={20} /></div>
+                                        <div className="detail-text">
+                                            <label>Phone Number</label>
+                                            <p>{profile.phone_number}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {profile.preferred_username && (
+                                    <div className="detail-item">
+                                        <div className="detail-icon"><User size={20} /></div>
+                                        <div className="detail-text">
+                                            <label>Username</label>
+                                            <p>@{profile.preferred_username}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </main>
+            
             <Footer />
         </div>
     );

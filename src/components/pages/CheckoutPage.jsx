@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import "../styles/CheckoutPage.css";
-import Navbar from "../Navbar";
+import { useNavigate } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { CheckCircle, ShieldCheck, Truck, CreditCard, ChevronLeft, Loader2 } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import Navbar from "../Navbar";
+import "../styles/CheckoutPage.css";
 
 const CheckoutPage = () => {
-  const { cart } = useCart();
+  const { cart, clearCart } = useCart();
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -16,8 +20,8 @@ const CheckoutPage = () => {
   });
 
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Calculate totals
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
@@ -26,126 +30,211 @@ const CheckoutPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    alert("Please complete payment to confirm your order.");
+  // Helper to handle the Order Save to Backend
+  const saveOrderToDB = async (details) => {
+    const orderPayload = {
+      userId: localStorage.getItem("userId") || details.payer.payer_id,
+      paymentId: details.id,
+      items: cart.map(item => ({
+        productId: item.id || item.productId,
+        dealerId: item.dealerId || null,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        imageUrl: item.img || item.imageUrl
+      })),
+      totalAmount: total,
+      shipping: { ...formData },
+      status: "Processing",
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      const response = await fetch("http://localhost:5001/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload),
+      });
+      return response.ok;
+    } catch (err) {
+      console.error("Failed to save order:", err);
+      return false;
+    }
   };
 
-  return (
-    <>
-      <Navbar />
-      <div className="checkout-page">
-        <div className="checkout-container w-full max-w-4xl animate-fadeInUp">
-          <div className="checkout-card glassy">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800 tracking-wide">
-              Checkout
-            </h2>
+  if (cart.length === 0 && !orderPlaced) {
+    return (
+      <div className="empty-checkout text-center py-20">
+        <Navbar />
+        <div className="container">
+          <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+          <button onClick={() => navigate("/shop")} className="btn-primary-lg">Return to Shop</button>
+        </div>
+      </div>
+    );
+  }
 
-            {!orderPlaced ? (
-              <form onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Shipping Details */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 text-gray-700">Shipping Information</h3>
-                  <input type="text" name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleChange} className="input-field" required />
-                  <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} className="input-field" required />
-                  <input type="text" name="address" placeholder="Street Address" value={formData.address} onChange={handleChange} className="input-field" required />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className="input-field" required />
-                    <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleChange} className="input-field" required />
+  return (
+    <div className="checkout-wrapper">
+      <Navbar />
+      
+      <main className="checkout-main container">
+        {!orderPlaced && (
+          <div className="checkout-steps">
+            <div className="step active"><span>1</span> Information</div>
+            <div className="step-line"></div>
+            <div className="step active"><span>2</span> Payment</div>
+            <div className="step-line"></div>
+            <div className="step"><span>3</span> Completion</div>
+          </div>
+        )}
+
+        {isProcessing && (
+          <div className="processing-overlay">
+            <Loader2 className="spinner-icon" size={48} />
+            <p>Finalizing your order...</p>
+          </div>
+        )}
+
+        {!orderPlaced ? (
+          <div className="checkout-grid">
+            <div className="checkout-details-column">
+              <button className="back-to-cart" onClick={() => navigate("/cart")}>
+                <ChevronLeft size={16} /> Back to Cart
+              </button>
+
+              <section className="checkout-card-pro">
+                <div className="card-header">
+                  <Truck size={20} className="text-blue-600" />
+                  <h3>Shipping Information</h3>
+                </div>
+                <div className="pro-form-grid">
+                  <div className="input-group">
+                    <label>Full Name</label>
+                    <input type="text" name="fullName" placeholder="John Doe" value={formData.fullName} onChange={handleChange} required />
                   </div>
-                  <input type="text" name="zip" placeholder="ZIP Code" value={formData.zip} onChange={handleChange} className="input-field" required />
+                  <div className="input-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="john@example.com" value={formData.email} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group full-width">
+                    <label>Street Address</label>
+                    <input type="text" name="address" placeholder="123 Luxury Lane" value={formData.address} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group">
+                    <label>City</label>
+                    <input type="text" name="city" placeholder="Los Angeles" value={formData.city} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group">
+                    <label>State</label>
+                    <input type="text" name="state" placeholder="CA" value={formData.state} onChange={handleChange} required />
+                  </div>
+                  <div className="input-group">
+                    <label>ZIP Code</label>
+                    <input type="text" name="zip" placeholder="90210" value={formData.zip} onChange={handleChange} required />
+                  </div>
+                </div>
+              </section>
+
+              <div className="secure-badge">
+                <ShieldCheck size={18} />
+                <p>Secure SSL Encrypted Checkout</p>
+              </div>
+            </div>
+
+            <aside className="checkout-summary-column">
+              <div className="summary-card-pro sticky-summary">
+                <div className="card-header">
+                  <CreditCard size={20} className="text-blue-600" />
+                  <h3>Order Summary</h3>
                 </div>
 
-                {/* Payment Section */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 text-gray-700">Payment & Summary</h3>
-                  <div className="order-summary glassy mb-6">
-                    <h4 className="font-semibold text-gray-800 mb-2">Order Summary</h4>
-                    <p className="flex justify-between text-gray-700">
-                      <span>Subtotal:</span> <span>${subtotal.toFixed(2)}</span>
-                    </p>
-                    <p className="flex justify-between text-gray-700">
-                      <span>Tax (8%):</span> <span>${tax.toFixed(2)}</span>
-                    </p>
-                    <p className="flex justify-between font-bold text-gray-900 text-lg">
-                      <span>Total:</span> <span>${total.toFixed(2)}</span>
-                    </p>
-                  </div>
+                <div className="summary-items">
+                  {cart.map(item => (
+                    <div className="mini-item" key={item.id}>
+                      <img src={item.img} alt={item.name} />
+                      <div className="mini-item-info">
+                        <p>{item.name}</p>
+                        <span>Qty: {item.quantity}</span>
+                      </div>
+                      <p className="mini-item-price">${(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                  ))}
+                </div>
 
-                  {/* PayPal Integration */}
-                  <PayPalScriptProvider
-                    options={{
-                      "client-id": "AW3hs3Q7NAUM6vCH9hD1kXJy-RT0rIKaLm5rs0LW81DOSlLzsrL4tioTaQV3dUxyNAZayZiAbPtGVlDf",
+                <div className="summary-totals">
+                  <div className="total-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+                  <div className="total-row"><span>Tax (8%)</span><span>${tax.toFixed(2)}</span></div>
+                  <div className="total-row"><span>Shipping</span><span className="free-tag">Free</span></div>
+                  <div className="divider"></div>
+                  <div className="total-row grand-total"><span>Total</span><span>${total.toFixed(2)}</span></div>
+                </div>
+
+                <div className="payment-area">
+                  <p className="payment-notice">Choose payment method:</p>
+                  
+                  {/* PAYPAL INTEGRATION UPDATED */}
+                  <PayPalScriptProvider 
+                    options={{ 
+                      "client-id": "AW3hs3Q7NAUM6vCH9hD1kXJy-RT0rIKaLm5rs0LW81DOSlLzsrL4tioTaQV3dUxyNAZayZiAbPtGVlDf", // Replace with your ID
                       currency: "USD",
+                      components: "buttons" 
                     }}
                   >
                     <PayPalButtons
-                      style={{ layout: "vertical", color: "blue" }}
+                      style={{ layout: "vertical", color: "black", shape: "rect" }}
                       createOrder={(data, actions) => {
+                        // Check if form is filled before allowing payment
+                        if (!formData.fullName || !formData.email || !formData.address) {
+                            alert("Please fill in your shipping details first.");
+                            return actions.reject();
+                        }
                         return actions.order.create({
-                          purchase_units: [{
-                            description: "E-commerce Order",
-                            amount: { currency_code: "USD", value: total.toFixed(2) },
+                          purchase_units: [{ 
+                            amount: { 
+                                currency_code: "USD", 
+                                value: total.toFixed(2) 
+                            } 
                           }],
                         });
                       }}
                       onApprove={(data, actions) => {
                         return actions.order.capture().then(async (details) => {
-                          localStorage.setItem("userId", details.payer.payer_id);
-
-                          // --- CRITICAL UPDATE: Ensure dealerId is passed for tracking ---
-                          const orderPayload = {
-                            userId: details.payer.payer_id,
-                            paymentId: details.id,
-                            items: cart.map(item => ({
-                              productId: item.id || item.productId,
-                              dealerId: item.dealerId || null, // Essential for Manage Orders visibility
-                              name: item.name,
-                              price: item.price,
-                              quantity: item.quantity,
-                              imageUrl: item.img || item.imageUrl
-                            })),
-                            totalAmount: total,
-                            shipping: { ...formData },
-                            createdAt: new Date().toISOString()
-                          };
-
-                          try {
-                            const response = await fetch("http://localhost:5001/api/orders", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify(orderPayload),
-                            });
-                            
-                            if (response.ok) {
-                              setOrderPlaced(true);
-                              alert(`Order confirmed! Thank you, ${details.payer.name.given_name}`);
-                            }
-                          } catch (err) {
-                            console.error("Order API Error:", err);
-                            alert("Payment successful, but failed to save order details. Please contact support.");
+                          setIsProcessing(true);
+                          const success = await saveOrderToDB(details);
+                          if (success) {
+                            setOrderPlaced(true);
+                            clearCart();
+                          } else {
+                            alert("Payment received, but we had trouble saving your order. Please contact support.");
                           }
+                          setIsProcessing(false);
                         });
                       }}
                       onError={(err) => {
                         console.error("PayPal Error:", err);
-                        alert("Payment could not be processed.");
+                        alert("There was an issue processing the payment. Please try again.");
                       }}
                     />
                   </PayPalScriptProvider>
                 </div>
-              </form>
-            ) : (
-              <div className="text-center p-8">
-                <h3 className="text-2xl font-bold text-green-600 mb-4">🎉 Order Confirmed!</h3>
-                <p className="text-gray-700">Thank you, {formData.fullName}. Your order has been placed successfully!</p>
-                <button onClick={() => window.location.href = "/home"} className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg">Return to Home</button>
               </div>
-            )}
+            </aside>
           </div>
-        </div>
-      </div>
-    </>
+        ) : (
+          <div className="success-screen animate-fadeIn">
+            <CheckCircle size={80} className="text-green-500 mb-6" />
+            <h2 className="text-4xl font-bold mb-2">Order Confirmed!</h2>
+            <p className="text-gray-600 mb-8">A confirmation email has been sent to <strong>{formData.email}</strong>.</p>
+            <div className="order-details-box">
+              <p>Order ID: <strong>#SE-{Math.floor(Math.random() * 900000) + 100000}</strong></p>
+              <p>Status: <strong>Processing</strong></p>
+            </div>
+            <button onClick={() => navigate("/home")} className="btn-primary-lg">Back to Store</button>
+          </div>
+        )}
+      </main>
+    </div>
   );
 };
 

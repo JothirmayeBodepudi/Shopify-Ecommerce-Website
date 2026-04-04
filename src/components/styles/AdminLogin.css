@@ -1,117 +1,138 @@
-/* --- AdminLogin.css --- */
-
-:root {
-  --admin-primary: #1e2a38;
-  --accent-blue: #007bff;
-  --error-red: #dc3545;
-  --glass-white: rgba(255, 255, 255, 0.95);
-}
-
-.admin-login-page {
+/* --- Page Wrapper --- */
+.admin-login-wrapper {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #1e2a38 0%, #34495e 100%);
-  margin: 0;
-  font-family: 'Segoe UI', Roboto, sans-serif;
+  justify-content: center;
+  /* Takes up the remaining height between your Navbar and Footer */
+  min-height: calc(100vh - 140px); 
+  background-color: #f9fafb; /* Light, clean gray background */
+  padding: 40px 20px;
 }
 
-/* Login Card Container */
-.login-card {
-  background: var(--glass-white);
-  padding: 3rem;
-  border-radius: 12px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+/* --- Login Card --- */
+.admin-login-card {
+  background: #ffffff;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 4px 6px rgba(0, 0, 0, 0.03);
+  padding: 40px 30px;
+  border: 1px solid #f3f4f6;
+}
+
+/* --- Header --- */
+.admin-login-header {
   text-align: center;
-  box-sizing: border-box; /* Prevents padding issues */
+  margin-bottom: 30px;
 }
 
-.login-card h2 {
-  color: var(--admin-primary);
-  margin-bottom: 2rem;
-  font-size: 1.8rem;
+.admin-login-header h2 {
+  font-size: 1.75rem;
+  color: #111827;
   font-weight: 700;
-  letter-spacing: -0.5px;
+  margin-bottom: 8px;
 }
 
-/* Form Layout */
-.login-form {
+.admin-login-header p {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* --- Error Banner --- */
+.admin-error-banner {
+  background-color: #fef2f2;
+  color: #dc2626;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  border: 1px solid #fee2e2;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* --- Form Layout --- */
+.admin-login-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 20px;
 }
 
-.form-group {
-  text-align: left;
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.form-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #555;
+/* --- Labels & Inputs --- */
+.admin-form-group label {
   font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
 }
 
-.form-group input {
+.admin-form-group input {
   width: 100%;
-  padding: 0.9rem 1.2rem;
-  border: 1px solid #dcdfe6;
-  border-radius: 6px;
+  padding: 12px 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
   font-size: 1rem;
-  background-color: #f8fafc;
+  color: #111827;
+  background-color: #f9fafb;
   transition: all 0.2s ease;
-  box-sizing: border-box;
+  box-sizing: border-box; /* Ensures padding doesn't break layout */
 }
 
-.form-group input:focus {
+/* Professional Focus State */
+.admin-form-group input:focus {
   outline: none;
-  border-color: var(--accent-blue);
-  background-color: #fff;
-  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Login Button */
-.login-btn {
-  background-color: var(--accent-blue);
-  color: white;
-  padding: 1rem;
+/* --- Submit Button --- */
+.admin-submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #111827;
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s active;
-  margin-top: 1rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 48px; /* Fixed height prevents jumping when spinner appears */
+  margin-top: 10px;
 }
 
-.login-btn:hover {
-  background-color: #0056b3;
+.admin-submit-btn:hover:not(:disabled) {
+  background-color: #374151;
 }
 
-.login-btn:active {
-  transform: scale(0.98);
+.admin-submit-btn:active:not(:disabled) {
+  transform: scale(0.98); /* Subtle click effect */
 }
 
-/* Error Message Styling */
-.error-msg {
-  background-color: rgba(220, 53, 69, 0.1);
-  color: var(--error-red);
-  padding: 0.8rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  border: 1px solid rgba(220, 53, 69, 0.2);
+.admin-submit-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
 }
 
-/* Responsive Handling */
-@media (max-width: 480px) {
-  .login-card {
-    padding: 2rem;
-    margin: 1rem;
-    box-shadow: none;
-  }
+/* --- Loading Spinner Animation --- */
+.btn-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

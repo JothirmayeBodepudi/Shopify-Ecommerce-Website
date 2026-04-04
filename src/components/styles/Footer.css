@@ -1,77 +1,164 @@
-.footer {
-  background-color: #040435; /* Dark navy like Wakefit */
-  color: #fff; /* Changed to white */
-  padding: 3rem 5%;
-  margin-top: 3rem;
+/* --- Modern Footer Styling --- */
+.footer-modern {
+  background-color: #0f172a; /* Deep Navy/Charcoal */
+  color: #f8fafc;
+  padding-top: 80px;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
-.footer-container {
+.footer-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px 60px 24px;
+}
+
+.footer-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  gap: 40px;
 }
 
+/* --- Brand Column --- */
 .footer-logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #ed7c0b; /* Accent color */
-  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
 }
 
-.footer-col h3 {
-  margin-bottom: 1rem;
+.footer-logo span {
+  color: #3b82f6; /* Professional blue */
+}
+
+.footer-description {
+  color: #94a3b8;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+}
+
+.social-links a {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
   font-size: 1.1rem;
-  font-weight: 600;
-  color: #fff; /* Changed to white */
 }
 
-.footer-col ul {
+.social-links a:hover {
+  background: #3b82f6;
+  transform: translateY(-3px);
+}
+
+/* --- Links Columns --- */
+.footer-links-col h3, 
+.footer-contact-col h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.footer-links-col h3::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  width: 30px;
+  height: 2px;
+  background-color: #3b82f6;
+}
+
+.footer-links-col ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.footer-col ul li {
-  margin-bottom: 0.6rem;
-  cursor: pointer;
-  transition: color 0.2s;
-  color: #fff; /* Changed to white */
+.footer-links-col li {
+  margin-bottom: 12px;
 }
 
-.footer-col ul li:hover {
-  color: #ff6f61;
+.footer-links-col a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
 }
 
-.footer-col p {
-  margin: 0.5rem 0;
+.footer-links-col a:hover {
+  color: #3b82f6;
+  padding-left: 5px; /* Subtle slide effect */
+}
+
+/* --- Contact Column --- */
+.contact-item {
+  margin-bottom: 18px;
+}
+
+.contact-item .label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #3b82f6;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.contact-item p {
+  color: #94a3b8;
+  font-size: 0.95rem;
   line-height: 1.5;
-  font-size: 0.9rem;
-  color: #fff; /* Changed to white */
+  margin: 0;
 }
 
-/* Add this to change the link color */
-.footer-col ul li a {
-  color: #fff; /* Changed to white */
-  text-decoration: none; /* Optional: Remove underline */
+/* --- Footer Bottom Bar --- */
+.footer-bottom {
+  background-color: #020617; /* Darker than the main footer */
+  padding: 25px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Add this to change the link color on hover */
-.footer-col ul li a:hover {
-  color: #ff6f61;
-}
-
-.social-icons {
+.footer-bottom-content {
+  max-width: 1280px;
+  margin: 0 auto;
   display: flex;
-  gap: 0.8rem;
-  margin-top: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  color: #64748b;
+  font-size: 0.85rem;
 }
 
-.social-icons a {
-  color: #fff;
-  font-size: 1.2rem;
-  transition: color 0.2s;
+.cin-text {
+  letter-spacing: 1px;
 }
 
-.social-icons a:hover {
-  color: #ff6f61;
+/* --- Responsive Design --- */
+@media (max-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .footer-bottom-content {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
 }

@@ -15,21 +15,23 @@ const WishlistPage = () => {
     setWishlist(storedWishlist);
   }, []);
 
-  // Remove item from wishlist
-  const removeFromWishlist = (id) => {
-    const updatedWishlist = wishlist.filter((item) => item.id !== id);
+  // Remove item from wishlist (Handles both id and productId)
+  const removeFromWishlist = (idToRemove) => {
+    const updatedWishlist = wishlist.filter(
+      (item) => item.id !== idToRemove && item.productId !== idToRemove
+    );
     setWishlist(updatedWishlist);
     localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
   };
 
   // Add to cart
-  const handleAddToCart = (product) => {
-    addToCart({ ...product, quantity: 1 });
-    removeFromWishlist(product.id);
+  const handleAddToCart = (product, itemId) => {
+    addToCart({ ...product, id: itemId, quantity: 1 });
+    removeFromWishlist(itemId);
     navigate("/cart");
   };
 
-  // Navigate to product details (IMPORTANT FIX)
+  // Navigate to product details
   const goToProductDetails = (id) => {
     navigate(`/product/${id}`);
   };
@@ -38,63 +40,76 @@ const WishlistPage = () => {
     <>
       <Navbar />
 
-      <div className="wishlist-wrapper">
-        <div className="wishlist-container">
-          <h2 className="wishlist-title">My Wishlist ❤️</h2>
+      <div className="wishlist-page-wrapper">
+        <div className="wishlist-main-container">
+          
+          {/* Header */}
+          <div className="wishlist-header">
+            <h2 className="text-3xl font-bold text-gray-800">My Wishlist</h2>
+            <span className="wishlist-count">
+              {wishlist.length} {wishlist.length === 1 ? 'Item' : 'Items'}
+            </span>
+          </div>
 
+          {/* Content */}
           {wishlist.length === 0 ? (
-            <div className="wishlist-empty glassy">
-              <p>Your wishlist is empty.</p>
-              <Link to="/shop" className="go-shop-btn">
-                Go to Shop
+            <div className="wishlist-empty-state">
+              <div className="empty-icon">🤍</div>
+              <h3>It feels a bit empty here</h3>
+              <p>Explore more and shortlist some items.</p>
+              <Link to="/shop" className="explore-btn">
+                Continue Shopping
               </Link>
             </div>
           ) : (
-            <div className="wishlist-grid">
-              {wishlist.map((product) => (
-                <div key={product.id} className="wishlist-card">
+            <div className="wishlist-professional-grid">
+              {wishlist.map((product, index) => {
+                // Safeguard: support both item.id and item.productId
+                const itemId = product.productId || product.id;
 
-                  {/* PRODUCT IMAGE (CLICK WORKS ALWAYS) */}
-                  <img
-                    src={product.img || product.imageUrl}
-                    alt={product.name}
-                    className="wishlist-img clickable"
-                    onClick={() => goToProductDetails(product.id)}
-                  />
+                return (
+                  <div key={itemId || index} className="wish-card">
+                    {/* Image Container with floating remove button */}
+                    <div className="wish-card-image-wrapper">
+                      <button
+                        className="wish-remove-icon"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevents image click
+                          removeFromWishlist(itemId);
+                        }}
+                        title="Remove from Wishlist"
+                      >
+                        ✕
+                      </button>
+                      <img
+                        src={product.img || product.imageUrl || "https://via.placeholder.com/250"}
+                        alt={product.name}
+                        onClick={() => goToProductDetails(itemId)}
+                      />
+                    </div>
 
-                  {/* PRODUCT INFO */}
-                  <div className="wishlist-info">
-                    <span
-                      className="wishlist-name clickable"
-                      onClick={() => goToProductDetails(product.id)}
-                    >
-                      {product.name}
-                    </span>
-
-                    <p className="wishlist-price">
-                      ${Number(product.price).toFixed(2)}
-                    </p>
+                    {/* Card Info */}
+                    <div className="wish-card-body">
+                      <h4 
+                        className="wish-card-title" 
+                        onClick={() => goToProductDetails(itemId)}
+                      >
+                        {product.name}
+                      </h4>
+                      <p className="wish-card-price">
+                        ${Number(product.price).toFixed(2)}
+                      </p>
+                      
+                      <button
+                        className="wish-add-btn"
+                        onClick={() => handleAddToCart(product, itemId)}
+                      >
+                        Move to Cart
+                      </button>
+                    </div>
                   </div>
-
-                  {/* ACTIONS */}
-                  <div className="wishlist-actions">
-                    <button
-                      className="wishlist-add-cart"
-                      onClick={() => handleAddToCart(product)}
-                    >
-                      Add to Cart
-                    </button>
-
-                    <button
-                      className="wishlist-remove"
-                      onClick={() => removeFromWishlist(product.id)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

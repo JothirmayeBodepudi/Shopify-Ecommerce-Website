@@ -156,6 +156,41 @@ app.get("/api/admin/orders", authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: "Failed to fetch orders" });
     }
 });
+// --- ADMIN: DELETE ORDER ---
+app.delete("/api/admin/orders/:orderId", authenticateToken, async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        await docClient.send(new DeleteCommand({ 
+            TableName: ORDERS_TABLE, 
+            Key: { orderId } 
+        }));
+        res.json({ success: true, message: "Order deleted successfully." });
+    } catch (error) {
+        console.error("❌ Delete order failed:", error);
+        res.status(500).json({ error: "Failed to delete order." });
+    }
+});
+
+// --- ADMIN: EDIT/UPDATE ORDER ---
+app.put("/api/admin/orders/:orderId", authenticateToken, async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        
+        // Grab all the updated fields from the frontend request
+        // and ensure the orderId remains the exact same as the URL parameter
+        const updatedOrder = { ...req.body, orderId };
+
+        await docClient.send(new PutCommand({ 
+            TableName: ORDERS_TABLE, 
+            Item: updatedOrder 
+        }));
+        
+        res.json({ success: true, message: "Order updated successfully." });
+    } catch (error) {
+        console.error("❌ Update order failed:", error);
+        res.status(500).json({ error: "Failed to update order details." });
+    }
+});
 // --- ADMIN: REAL-TIME ANALYTICS ---
 app.get("/api/admin/dashboard-stats", authenticateToken, async (req, res) => {
     try {
@@ -247,7 +282,7 @@ app.put("/api/admin/orders/:orderId/status", authenticateToken, async (req, res)
         await docClient.send(new UpdateCommand({
             TableName: ORDERS_TABLE,
             Key: { orderId },
-            UpdateExpression: "SET #s = :s",
+            UpdateExpression: "SET #s = :s", 
             ExpressionAttributeNames: { "#s": "status" },
             ExpressionAttributeValues: { ":s": status }
         }));
@@ -299,16 +334,32 @@ app.post("/api/admin/batch-delete", authenticateToken, async (req, res) => {
         return res.status(400).json({ error: "Table name and a non-empty array of IDs are required." });
     }
 
-    const keyMap = { 'Products': 'productId', 'vendorproduct': 'productId', 'Admins': 'username', 'Dealers': 'dealerId' };
+    // ✅ ADDED 'Orders': 'orderId' to the key map
+    const keyMap = { 
+        'Products': 'productId', 
+        'vendorproduct': 'productId', 
+        'Admins': 'username', 
+        'Dealers': 'dealerId',
+        'Orders': 'orderId' 
+    };
     const primaryKey = keyMap[tableName] || 'id';
 
+    // ✅ ADDED 'Orders': ORDERS_TABLE to the table map
     const tableMap = {
-        'Products': PRODUCT_TABLE, 'Dealers': DEALER_TABLE, 'Admins': ADMIN_TABLE,
-        'Contact Messages': CONTACT_TABLE, 'Media Queries': MEDIA_QUERIES_TABLE, 'Product Surveys': PRODUCT_SURVEY_TABLE,
+        'Products': PRODUCT_TABLE, 
+        'Dealers': DEALER_TABLE, 
+        'Admins': ADMIN_TABLE,
+        'Contact Messages': CONTACT_TABLE, 
+        'Media Queries': MEDIA_QUERIES_TABLE, 
+        'Product Surveys': PRODUCT_SURVEY_TABLE,
+        'Orders': ORDERS_TABLE
     };
+    
     const dynamoTableName = tableMap[tableName];
     if (!dynamoTableName) return res.status(400).json({ error: "Invalid table name specified." });
 
+    // Note: DynamoDB BatchWriteCommand can only delete 25 items at a time. 
+    // If you plan to delete more than 25 orders at once, you will need to chunk the array.
     const deleteRequests = ids.map(id => ({ DeleteRequest: { Key: { [primaryKey]: id } } }));
 
     try {
@@ -318,7 +369,6 @@ app.post("/api/admin/batch-delete", authenticateToken, async (req, res) => {
         res.status(500).json({ error: "Failed to delete items." });
     }
 });
-
 // --- ADMIN: GENERIC CRUD HANDLERS ---
 const createScanHandler = (tableName) => async (req, res) => {
     try {
@@ -714,6 +764,7 @@ app.get("/api/search", async (req, res) => {
         res.json(results);
     } catch (error) { res.status(500).json([]); }
 });
+
 // ================= START SERVER =================
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
