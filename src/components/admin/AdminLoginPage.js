@@ -4,7 +4,9 @@ import '../styles/AdminLogin.css';
 import Footer from '../Footer'; 
 import Navbar from '../Navbar'; 
 
-const API_ENDPOINT = '/api/admin/login';
+// --- 🌐 DYNAMIC API URL ---
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5001';
+const API_ENDPOINT = `${API_BASE}/api/admin/login`;
 
 function AdminLoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -18,16 +20,24 @@ function AdminLoginPage({ onLogin }) {
     setLoading(true);
 
     try {
+      // Now hitting the EC2 URL directly
       const response = await axios.post(API_ENDPOINT, {
         username,
         password,
       });
 
       if (response.data.success) {
-        onLogin(response.data.token);
+        // Pass the token (and user data if your backend sends it) to the parent state
+        onLogin(response.data.token, response.data.user);
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
+      console.error("Login attempt failed:", err);
+      // Detailed error handling for EC2 connection issues
+      if (!err.response) {
+        setError('Cannot connect to server. Ensure EC2 backend is running.');
+      } else {
+        setError(err.response?.data?.error || 'Invalid credentials. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -40,11 +50,12 @@ function AdminLoginPage({ onLogin }) {
         <div className="admin-login-card">
           
           <div className="admin-login-header">
+            <div className="admin-badge">Secure Access</div>
             <h2>Admin Portal</h2>
-            <p>Enter your credentials to access the dashboard</p>
+            <p>Access the ShopEase Management Dashboard</p>
           </div>
 
-          {/* Upgraded Error Banner */}
+          {/* Error Banner */}
           {error && <div className="admin-error-banner">{error}</div>}
 
           <form onSubmit={handleSubmit} className="admin-login-form">
@@ -53,9 +64,10 @@ function AdminLoginPage({ onLogin }) {
               <input
                 type="text"
                 id="username"
+                autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin@example.com"
+                placeholder="admin_id"
                 required
               />
             </div>
@@ -65,6 +77,7 @@ function AdminLoginPage({ onLogin }) {
               <input
                 type="password"
                 id="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -73,10 +86,18 @@ function AdminLoginPage({ onLogin }) {
             </div>
             
             <button type="submit" className="admin-submit-btn" disabled={loading}>
-              {loading ? <span className="btn-spinner"></span> : 'Sign In'}
+              {loading ? (
+                <div className="btn-content">
+                  <span className="btn-spinner"></span> 
+                  Authenticating...
+                </div>
+              ) : 'Sign In to Dashboard'}
             </button>
           </form>
           
+          <div className="admin-login-footer">
+            <p>Authorized personnel only. Sessions are monitored.</p>
+          </div>
         </div>
       </div>
       <Footer />

@@ -22,6 +22,8 @@ const CheckoutPage = () => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
+  
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
@@ -50,7 +52,7 @@ const CheckoutPage = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5001/api/orders", {
+      const response = await fetch(`${API_BASE}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),

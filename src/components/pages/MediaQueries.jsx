@@ -3,6 +3,7 @@ import Navbar from "../Navbar";
 import Footer from "../Footer";
 import "../styles/MediaQueries.css";
 
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 export default function MediaQueries() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ export default function MediaQueries() {
     e.preventDefault();
 
     try {
-      const response = await fetch("/api/media-queries", {
+      const response = await fetch(`${API_BASE}/api/media-queries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, query }),

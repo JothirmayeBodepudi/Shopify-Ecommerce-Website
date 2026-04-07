@@ -286,6 +286,17 @@
   animation: fadeIn 0.2s ease-out;
 }
 
+/* --- Fix Logout Button Text Color --- */
+.menu-item.logout-btn {
+  color: #4b5563 !important; /* Forces the grey color */
+  transition: all 0.2s ease;
+}
+
+.menu-item.logout-btn:hover {
+  background: #fef2f2; /* Light red background on hover */
+  color: #dc2626 !important; /* Turns red only on hover for clear feedback */
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }

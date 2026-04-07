@@ -30,7 +30,7 @@ const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
 const sesClient = new SESClient({ region: "eu-north-1" });
 // MIDDLEWARE
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "https://main.d20yxa1qcjiie4.amplifyapp.com"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
 }));
 

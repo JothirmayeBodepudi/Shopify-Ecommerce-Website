@@ -7,7 +7,7 @@ import { useCart } from "../context/CartContext";
 import "../styles/ProductDetails.css";
 import Footer from "../Footer";
 
-const API_URL = "http://localhost:5001";
+const API_URL = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 
 const getWishlist = () => JSON.parse(localStorage.getItem("wishlist")) || [];
 const isInWishlist = (productId) => getWishlist().some((item) => item.productId === productId);

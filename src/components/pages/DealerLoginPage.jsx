@@ -5,6 +5,7 @@ import Footer from '../Footer';
 import { Mail, Phone, ArrowRight, Store } from 'lucide-react';
 import '../styles/DealerRegistration.css';
 
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 export default function DealerLoginPage() {
     const navigate = useNavigate();
 
@@ -29,7 +30,7 @@ export default function DealerLoginPage() {
         setError('');
 
         try {
-            const res = await fetch('http://localhost:5001/api/dealers/login', {
+            const res = await fetch('(`${API_BASE}/api/dealers/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),

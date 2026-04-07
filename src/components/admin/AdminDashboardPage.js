@@ -12,7 +12,7 @@ import DataTableViewer from '../admin/DataTableViewer';
 import ActivityChart from '../admin/ActivityChart';
 import '../styles/AdminDashboard.css';
 
-const API_URL = 'http://localhost:5001';
+const API_URL = process.env.REACT_APP_API_BASE || 'http://localhost:5001';
 
 function AdminDashboardPage({ user = { name: 'Admin' }, token, onLogout }) {
   const [activeView, setActiveView] = useState('dashboardOverview');

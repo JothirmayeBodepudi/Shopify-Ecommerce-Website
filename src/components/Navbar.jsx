@@ -10,6 +10,7 @@ import {
 import Chatbot from "./pages/Chatbot"; 
 import "./styles/Navbar.css";
 
+
 export default function Navbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false); 
@@ -39,6 +40,8 @@ export default function Navbar() {
       alert("Voice search is not supported in this browser. Please try Chrome.");
       return;
     }
+
+    const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
@@ -79,7 +82,7 @@ export default function Navbar() {
 
     const delayDebounce = setTimeout(async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/search?q=${query}`);
+        const response = await fetch(`${API_BASE}/api/search?q=${query}`);
         const data = await res.json();
         setSuggestions(data);
       } catch (err) {

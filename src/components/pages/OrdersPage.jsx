@@ -10,7 +10,7 @@ const OrdersPage = () => {
   const [timeFilter, setTimeFilter] = useState("all");
 
   const userId = localStorage.getItem("userId") || "PAYPAL_USER";
-
+  const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
   // Map status to icons and colors
   const statusConfig = {
     Processing: { icon: <Clock size={14} />, class: "status-processing" },
@@ -22,7 +22,7 @@ const OrdersPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/orders?userId=${userId}`);
+        const res = await fetch(`${API_BASE}/api/orders?userId=${userId}`);
         if (!res.ok) throw new Error("Failed to fetch orders");
         const data = await res.json();
         const sortedOrders = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/AddProductForm.css';
 
-const API_URL = 'http://localhost:5001';
+// --- 🌐 DYNAMIC API URL ---
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5001';
 
-// Add onLogout to the props to handle session expiry
 function AddProductForm({ token, onLogout }) {
   const [productData, setProductData] = useState({
     name: '',
@@ -38,6 +38,7 @@ function AddProductForm({ token, onLogout }) {
 
     setIsLoading(true);
 
+    // Using FormData for Multi-part (Image + Text) upload
     const formData = new FormData();
     formData.append('image', imageFile);
     formData.append('name', productData.name);
@@ -48,7 +49,7 @@ function AddProductForm({ token, onLogout }) {
 
     try {
       const response = await axios.post(
-        `/api/admin/products`, // This URL now matches the backend
+        `${API_BASE}/api/admin/products`, // Fixed to use the full AWS URL
         formData,
         {
           headers: {
@@ -60,17 +61,21 @@ function AddProductForm({ token, onLogout }) {
 
       if (response.data.success) {
         setMessage('Product added successfully!');
+        // Reset local state
         setProductData({ name: '', price: '', description: '', category: '', brand: '' });
         setImageFile(null);
+        // Reset the actual HTML input file field
         e.target.reset();
       }
     } catch (err) {
-      // (NEW) Handle session expiry
-      if (err.response && err.response.status === 403) {
-        alert("Your session has expired. Please log in again.");
-        onLogout(); // Log the user out
+      console.error("Upload Error:", err);
+      
+      // Handle session expiry (401 or 403)
+      if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+        alert("Your session has expired or you are unauthorized. Please log in again.");
+        if (onLogout) onLogout(); 
       } else {
-        setError(err.response?.data?.error || 'Failed to add product. Please try again.');
+        setError(err.response?.data?.error || 'Failed to add product. Please check your connection.');
       }
     } finally {
       setIsLoading(false);
@@ -79,37 +84,57 @@ function AddProductForm({ token, onLogout }) {
 
   return (
     <div className="add-product-container">
-      <form onSubmit={handleSubmit} className="add-product-form">
-        <div className="form-group">
-          <label htmlFor="name">Product Name</label>
-          <input type="text" id="name" name="name" value={productData.name} onChange={handleChange} required />
-        </div>
-        <div className="form-group">
-          <label htmlFor="price">Price</label>
-          <input type="number" id="price" name="price" value={productData.price} onChange={handleChange} required />
-        </div>
-         <div className="form-group">
-          <label htmlFor="brand">Brand</label>
-          <input type="text" id="brand" name="brand" value={productData.brand} onChange={handleChange} />
-        </div>
-        <div className="form-group">
-          <label htmlFor="category">Category</label>
-          <input type="text" id="category" name="category" value={productData.category} onChange={handleChange} />
-        </div>
-        <div className="form-group">
-          <label htmlFor="description">Description</label>
-          <textarea id="description" name="description" value={productData.description} onChange={handleChange}></textarea>
-        </div>
-        <div className="form-group">
-          <label htmlFor="image">Product Image</label>
-          <input type="file" id="image" name="image" onChange={handleFileChange} accept="image/*" required />
-        </div>
-        <button type="submit" className="btn btn-primary" disabled={isLoading}>
-          {isLoading ? 'Uploading...' : 'Add Product'}
-        </button>
-      </form>
-      {message && <p className="success-message">{message}</p>}
-      {error && <p className="error-message">{error}</p>}
+      <div className="form-card-modern">
+        <h2 className="form-title">Inventory Management</h2>
+        <p className="form-subtitle">Upload new products to the ShopEase catalog.</p>
+
+        <form onSubmit={handleSubmit} className="add-product-form">
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="name">Product Name</label>
+              <input type="text" id="name" name="name" value={productData.name} onChange={handleChange} placeholder="e.g. Premium Cotton Tee" required />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="price">Price ($)</label>
+              <input type="number" id="price" name="price" value={productData.price} onChange={handleChange} placeholder="0.00" step="0.01" required />
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="brand">Brand</label>
+              <input type="text" id="brand" name="brand" value={productData.brand} onChange={handleChange} placeholder="Brand Name" />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="category">Category</label>
+              <input type="text" id="category" name="category" value={productData.category} onChange={handleChange} placeholder="Category" />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="description">Description</label>
+            <textarea id="description" name="description" value={productData.description} onChange={handleChange} placeholder="Describe the product features..."></textarea>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="image" className="file-upload-label">
+              <span>Product Image</span>
+              <div className="file-input-wrapper">
+                <input type="file" id="image" name="image" onChange={handleFileChange} accept="image/*" required />
+              </div>
+            </label>
+          </div>
+
+          <button type="submit" className="btn-pd-buy" style={{ width: '100%' }} disabled={isLoading}>
+            {isLoading ? 'Uploading to S3...' : 'Confirm & Add Product'}
+          </button>
+        </form>
+
+        {message && <div className="pd-success-alert">{message}</div>}
+        {error && <div className="pd-error-alert">{error}</div>}
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Footer from "../Footer";
 // import Navbar from "../Navbar";  // Assuming Navbar and CSS are in parent folders
 // import "../styles/ProductSurvey.css";
-
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 export default function ProductSurvey() {
   const [formData, setFormData] = useState({
     productName: "",
@@ -25,7 +25,7 @@ export default function ProductSurvey() {
     try {
       // This fetch call is for demonstration.
       // Replace "http://localhost:5000/product-survey" with your actual API endpoint.
-      const response = await fetch("/api/product-survey", {
+      const response = await fetch(`${API_BASE}/api/product-survey`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

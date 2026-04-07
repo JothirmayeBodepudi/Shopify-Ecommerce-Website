@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import axios from 'axios';
 import '../styles/DataTableViewer.css';
 
-const API_URL = 'http://localhost:5001';
+const API_URL = process.env.REACT_APP_API_BASE || 'http://localhost:5001';
 
 export default function DataTableViewer({
   data,
