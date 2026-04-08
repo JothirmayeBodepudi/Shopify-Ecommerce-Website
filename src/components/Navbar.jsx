@@ -10,6 +10,9 @@ import {
 import Chatbot from "./pages/Chatbot"; 
 import "./styles/Navbar.css";
 
+// --- 🌐 GLOBAL API URL ---
+// Moving this here fixes the 'API_BASE is not defined' error
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 
 export default function Navbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -41,8 +44,6 @@ export default function Navbar() {
       return;
     }
 
-    const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
-
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.interimResults = false;
@@ -73,7 +74,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🔍 SMART SEARCH HANDLER (Debounced)
+  // 🔍 SMART SEARCH HANDLER
   useEffect(() => {
     if (query.trim().length < 2) {
       setSuggestions([]);
@@ -82,8 +83,10 @@ export default function Navbar() {
 
     const delayDebounce = setTimeout(async () => {
       try {
+        // FIXED: Using API_BASE which is now globally defined above
         const response = await fetch(`${API_BASE}/api/search?q=${query}`);
-        const data = await res.json();
+        // FIXED: Changed 'res' to 'response' to match the variable above
+        const data = await response.json(); 
         setSuggestions(data);
       } catch (err) {
         console.error("Search failed", err);
@@ -220,7 +223,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* 🤖 FLOATING CHATBOT COMPONENT */}
       <Chatbot isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
     </>
   );
