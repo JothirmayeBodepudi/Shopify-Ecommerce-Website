@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { CheckCircle, ShieldCheck, Truck, CreditCard, ChevronLeft, Loader2 } from "lucide-react";
+import { useAuth } from "react-oidc-context"; // ✅ 1. Import useAuth
 import { useCart } from "../context/CartContext";
 import Navbar from "../Navbar";
 import "../styles/CheckoutPage.css";
 
 const CheckoutPage = () => {
+  const auth = useAuth(); // ✅ 2. Initialize Auth
   const { cart, clearCart } = useCart();
   const navigate = useNavigate();
   
@@ -34,8 +36,14 @@ const CheckoutPage = () => {
 
   // Helper to handle the Order Save to Backend
   const saveOrderToDB = async (details) => {
+    // ✅ 3. USE DYNAMIC USER ID (Matches OrdersPage.jsx logic)
+    const userId = auth.user?.profile?.sub || 
+                   auth.user?.profile?.email || 
+                   localStorage.getItem("userId") || 
+                   details.payer.payer_id;
+
     const orderPayload = {
-      userId: localStorage.getItem("userId") || details.payer.payer_id,
+      userId: userId, // ✅ This maps correctly to DynamoDB Partition Key
       paymentId: details.id,
       items: cart.map(item => ({
         productId: item.id || item.productId,
@@ -175,10 +183,9 @@ const CheckoutPage = () => {
                 <div className="payment-area">
                   <p className="payment-notice">Choose payment method:</p>
                   
-                  {/* PAYPAL INTEGRATION UPDATED */}
                   <PayPalScriptProvider 
                     options={{ 
-                      "client-id": "AW3hs3Q7NAUM6vCH9hD1kXJy-RT0rIKaLm5rs0LW81DOSlLzsrL4tioTaQV3dUxyNAZayZiAbPtGVlDf", // Replace with your ID
+                      "client-id": "AW3hs3Q7NAUM6vCH9hD1kXJy-RT0rIKaLm5rs0LW81DOSlLzsrL4tioTaQV3dUxyNAZayZiAbPtGVlDf", 
                       currency: "USD",
                       components: "buttons" 
                     }}
@@ -186,7 +193,6 @@ const CheckoutPage = () => {
                     <PayPalButtons
                       style={{ layout: "vertical", color: "black", shape: "rect" }}
                       createOrder={(data, actions) => {
-                        // Check if form is filled before allowing payment
                         if (!formData.fullName || !formData.email || !formData.address) {
                             alert("Please fill in your shipping details first.");
                             return actions.reject();
@@ -208,14 +214,10 @@ const CheckoutPage = () => {
                             setOrderPlaced(true);
                             clearCart();
                           } else {
-                            alert("Payment received, but we had trouble saving your order. Please contact support.");
+                            alert("Payment received, but we had trouble saving your order.");
                           }
                           setIsProcessing(false);
                         });
-                      }}
-                      onError={(err) => {
-                        console.error("PayPal Error:", err);
-                        alert("There was an issue processing the payment. Please try again.");
                       }}
                     />
                   </PayPalScriptProvider>
@@ -229,10 +231,10 @@ const CheckoutPage = () => {
             <h2 className="text-4xl font-bold mb-2">Order Confirmed!</h2>
             <p className="text-gray-600 mb-8">A confirmation email has been sent to <strong>{formData.email}</strong>.</p>
             <div className="order-details-box">
-              <p>Order ID: <strong>#SE-{Math.floor(Math.random() * 900000) + 100000}</strong></p>
               <p>Status: <strong>Processing</strong></p>
+              <p className="mt-2 text-sm text-gray-500">You can view this order in your profile history.</p>
             </div>
-            <button onClick={() => navigate("/home")} className="btn-primary-lg">Back to Store</button>
+            <button onClick={() => navigate("/profile/orders")} className="btn-primary-lg">View My Orders</button>
           </div>
         )}
       </main>
