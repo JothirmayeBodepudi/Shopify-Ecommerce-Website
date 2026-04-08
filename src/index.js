@@ -8,8 +8,8 @@ import { CartProvider } from "./components/context/CartContext";
  const cognitoAuthConfig = {
   authority: "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_DoS4Lyi4Q",
   client_id: "6gdo20o2m2nuushmcnt2h918lp",
-  redirect_uri: "https://main.d28osev3npc5aj.amplifyapp.com/home",
-  logout_uri: "https://main.d28osev3npc5aj.amplifyapp.com/logout-success",
+  redirect_uri: "https://main.d20yxa1qcjiie4.amplifyapp.com/home",
+  logout_uri: "https://main.d20yxa1qcjiie4.amplifyapp.com/logout-success",
   response_type: "code",
   scope: "email openid phone profile",
 
