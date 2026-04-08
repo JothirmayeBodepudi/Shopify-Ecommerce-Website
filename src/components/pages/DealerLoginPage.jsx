@@ -30,7 +30,7 @@ export default function DealerLoginPage() {
         setError('');
 
         try {
-            const res = await fetch('(`${API_BASE}/api/dealers/login', {
+            const res = await fetch(`${API_BASE}/api/dealers/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
