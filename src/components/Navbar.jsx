@@ -10,8 +10,6 @@ import {
 import Chatbot from "./pages/Chatbot"; 
 import "./styles/Navbar.css";
 
-// --- 🌐 GLOBAL API URL ---
-// Moving this here fixes the 'API_BASE is not defined' error
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 
 export default function Navbar() {
@@ -30,9 +28,27 @@ export default function Navbar() {
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleLogout = () => {
+  // --- 🚪 FIXED LOGOUT LOGIC ---
+  const handleLogout = async () => {
     setShowProfileMenu(false);
-    auth.signoutRedirect();
+    
+    try {
+      // 1. Clear local storage first to ensure immediate UI feedback
+      localStorage.removeItem("userId"); 
+      localStorage.removeItem("dealerId");
+
+      // 2. Attempt a clean OIDC signout
+      if (auth.isAuthenticated) {
+        await auth.signoutRedirect();
+      }
+    } catch (err) {
+      console.error("Cognito signout error, forcing local logout:", err);
+    } finally {
+      // 3. FAIL-SAFE: Manually remove the user from state if redirect fails
+      auth.removeUser();
+      // Use window.location to ensure a hard refresh of the auth state
+      window.location.href = "/home";
+    }
   };
 
   // --- 🎙️ VOICE SEARCH LOGIC ---
@@ -40,7 +56,7 @@ export default function Navbar() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert("Voice search is not supported in this browser. Please try Chrome.");
+      alert("Voice search is not supported in this browser.");
       return;
     }
 
@@ -59,7 +75,6 @@ export default function Navbar() {
     recognition.start();
   };
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -74,7 +89,6 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🔍 SMART SEARCH HANDLER
   useEffect(() => {
     if (query.trim().length < 2) {
       setSuggestions([]);
@@ -83,9 +97,7 @@ export default function Navbar() {
 
     const delayDebounce = setTimeout(async () => {
       try {
-        // FIXED: Using API_BASE which is now globally defined above
         const response = await fetch(`${API_BASE}/api/search?q=${query}`);
-        // FIXED: Changed 'res' to 'response' to match the variable above
         const data = await response.json(); 
         setSuggestions(data);
       } catch (err) {
@@ -101,7 +113,6 @@ export default function Navbar() {
       <nav className="navbar-modern">
         <div className="navbar-container">
           
-          {/* LEFT: Logo & Links */}
           <div className="nav-left">
             <Link to="/home" className="logo">
               Shop<span>Ease</span>
@@ -113,10 +124,8 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* RIGHT: Actions */}
           <div className="nav-right">
             
-            {/* 🔍 SEARCH BOX */}
             <div className="search-container" ref={searchRef}>
               <div className={`search-input-wrapper ${isListening ? "listening-glow" : ""}`}>
                 <Search size={18} className="search-icon" />
@@ -139,14 +148,12 @@ export default function Navbar() {
                   <button 
                     className={`mic-btn ${isListening ? "active" : ""}`} 
                     onClick={handleVoiceSearch}
-                    title="Search by voice"
                   >
                     {isListening ? <Loader2 size={18} className="animate-spin" /> : <Mic size={18} />}
                   </button>
                 </div>
               </div>
 
-              {/* Suggestions Dropdown */}
               {suggestions.length > 0 && (
                 <div className="search-dropdown-modern">
                   <div className="dropdown-header">Products</div>
@@ -171,23 +178,19 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* 🤖 CHATBOT TOGGLE */}
             <button 
               className={`nav-icon-btn chat-nav-btn ${isChatOpen ? "active" : ""}`}
               onClick={() => setIsChatOpen(!isChatOpen)}
-              title="Customer Assistant"
             >
               <MessageSquareText size={22} />
               <span className="dot-indicator"></span>
             </button>
 
-            {/* 🛒 CART ICON */}
             <Link to="/cart" className="nav-icon-btn cart-btn">
               <ShoppingBag size={22} />
               {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
             </Link>
 
-            {/* 👤 PROFILE */}
             {auth.isAuthenticated ? (
               <div className="profile-dropdown-container" ref={dropdownRef}>
                 <button onClick={() => setShowProfileMenu((prev) => !prev)} className="profile-trigger">

@@ -2,11 +2,32 @@ import React from "react";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 import { useAuth } from "react-oidc-context";
-import { User, Mail, Phone, ShieldCheck, Calendar, LogOut, Settings, Bell } from "lucide-react";
+import { User, Mail, Phone, Calendar, LogOut } from "lucide-react";
 import '../styles/ProfilePage.css';
 
 const ProfilePage = () => {
     const auth = useAuth();
+
+    // --- 🚪 FIXED LOGOUT LOGIC ---
+    const handleLogout = async () => {
+        try {
+            // 1. Clear local session data immediately
+            localStorage.removeItem("userId");
+            localStorage.removeItem("dealerId");
+
+            // 2. Attempt the OIDC signout redirect
+            if (auth.isAuthenticated) {
+                await auth.signoutRedirect();
+            }
+        } catch (err) {
+            console.error("Logout redirection failed:", err);
+        } finally {
+            // 3. FAIL-SAFE: Manually clear the user and force a home redirect
+            // This stops the "400 Bad Request" loop from freezing the UI
+            auth.removeUser();
+            window.location.href = "/home";
+        }
+    };
 
     if (auth.isLoading) {
         return (
@@ -63,11 +84,9 @@ const ProfilePage = () => {
                     <aside className="profile-sidebar">
                         <nav className="side-nav">
                             <button className="nav-item active"><User size={18} /> Personal Info</button>
-                            {/* <button className="nav-item"><ShieldCheck size={18} /> Security</button>
-                            <button className="nav-item"><Bell size={18} /> Notifications</button>
-                            <button className="nav-item"><Settings size={18} /> Account Settings</button> */}
                             <div className="nav-divider"></div>
-                            <button className="nav-item logout" onClick={() => auth.signoutRedirect()}>
+                            {/* ✅ Updated to use handleLogout */}
+                            <button className="nav-item logout" onClick={handleLogout}>
                                 <LogOut size={18} /> Sign Out
                             </button>
                         </nav>
