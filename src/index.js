@@ -9,7 +9,7 @@ import { CartProvider } from "./components/context/CartContext";
   authority: "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_DoS4Lyi4Q",
   client_id: "6gdo20o2m2nuushmcnt2h918lp",
   redirect_uri: "https://main.d20yxa1qcjiie4.amplifyapp.com/home",
-  logout_uri: "https://main.d20yxa1qcjiie4.amplifyapp.com/logout-success",
+  logout_uri: "https://main.d20yxa1qcjiie4.amplifyapp.com",
   response_type: "code",
   scope: "email openid phone profile",
 
