@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Send, X, Bot, User, Loader2 } from "lucide-react";
-import "components/styles/Chatbot.css";
+import "../styles/Chatbot.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 
