@@ -765,6 +765,31 @@ app.get("/api/search", async (req, res) => {
     } catch (error) { res.status(500).json([]); }
 });
 
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+// ✅ Initialize Gemini safely
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { message } = req.body;
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    // This "prompt" tells the AI how to behave (Persona)
+    const result = await model.generateContent(`
+      You are the ShopEase Assistant. 
+      Help the user with shopping questions. 
+      Keep it short (max 2 sentences).
+      User says: ${message}
+    `);
+
+    const response = await result.response;
+    res.json({ reply: response.text() });
+  } catch (error) {
+    console.error("Gemini Error:", error);
+    res.status(500).json({ reply: "I'm having a quick nap. Try again in a second!" });
+  }
+});
 // ================= START SERVER =================
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));

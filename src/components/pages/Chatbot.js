@@ -1,108 +1,87 @@
-import React, { useState, useEffect, useRef } from "react";
-import { X, Send, Bot, User } from "lucide-react";
-import "../styles/Chatbot.css";
+import React, { useState, useRef, useEffect } from "react";
+import { Send, X, Bot, User, Loader2 } from "lucide-react";
+import "./Chatbot.css";
+
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5001";
 
 export default function Chatbot({ isOpen, setIsOpen }) {
   const [messages, setMessages] = useState([
-    { role: "bot", text: "Hello! I'm your ShopEase assistant. How can I help you today?" }
+    { text: "Hi! I'm your ShopEase assistant. How can I help you today?", sender: "bot" }
   ]);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false); // Visual feedback for the user
-  const chatEndRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef(null);
 
-  // Auto-scroll to latest message
+  // Auto-scroll to bottom
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
 
-    // 1. Add user message to UI
-    const userMessage = { role: "user", text: input };
+    const userMessage = { text: input, sender: "user" };
     setMessages((prev) => [...prev, userMessage]);
-    
-    const query = input; // Capture input before clearing
     setInput("");
-    setIsTyping(true);
+    setIsLoading(true);
 
     try {
-      // 2. Send to your Backend API
-      const response = await fetch("http://localhost:5001/api/chat", {
+      const res = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            message: query,
-            userId: localStorage.getItem("userId") || "GUEST" 
-        }),
+        body: JSON.stringify({ message: input }),
       });
 
-      const data = await response.json();
-
-      // 3. Add Bot response to UI
-      setMessages((prev) => [...prev, { role: "bot", text: data.reply }]);
+      const data = await res.json();
+      setMessages((prev) => [...prev, { text: data.reply, sender: "bot" }]);
     } catch (error) {
-      setMessages((prev) => [...prev, { role: "bot", text: "Sorry, I'm having trouble connecting to the server. Please try again later." }]);
+      setMessages((prev) => [...prev, { text: "Sorry, I'm offline. Check your connection!", sender: "bot" }]);
     } finally {
-      setIsTyping(false);
+      setIsLoading(false);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="chatbot-fixed-container">
-      <div className="chat-window">
-        {/* HEADER */}
-        <div className="chat-header">
-          <div className="header-info">
-            <Bot size={20} />
-            <span>ShopEase Assistant</span>
+    <div className="chatbot-window animate-slideUp">
+      <div className="chatbot-header">
+        <div className="header-info">
+          <Bot size={20} />
+          <span>ShopEase AI</span>
+        </div>
+        <button onClick={() => setIsOpen(false)}><X size={20} /></button>
+      </div>
+
+      <div className="chatbot-messages">
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`message-bubble ${msg.sender}`}>
+            <div className="avatar-icon">
+              {msg.sender === "bot" ? <Bot size={14} /> : <User size={14} />}
+            </div>
+            <p>{msg.text}</p>
           </div>
-          <button className="close-btn" onClick={() => setIsOpen(false)}>
-            <X size={20} />
-          </button>
-        </div>
+        ))}
+        {isLoading && (
+          <div className="message-bubble bot">
+            <Loader2 size={16} className="animate-spin" />
+            <p>Thinking...</p>
+          </div>
+        )}
+        <div ref={scrollRef} />
+      </div>
 
-        {/* MESSAGE BODY */}
-        <div className="chat-body">
-          {messages.map((msg, i) => (
-            <div key={i} className={`msg-bubble-wrapper ${msg.role}`}>
-              <div className="avatar-circle">
-                {msg.role === "bot" ? <Bot size={12} /> : <User size={12} />}
-              </div>
-              <div className="msg-text">
-                <p>{msg.text}</p>
-              </div>
-            </div>
-          ))}
-          
-          {/* Typing Indicator */}
-          {isTyping && (
-            <div className="msg-bubble-wrapper bot">
-              <div className="avatar-circle"><Bot size={12} /></div>
-              <div className="msg-text typing">
-                <span>.</span><span>.</span><span>.</span>
-              </div>
-            </div>
-          )}
-          <div ref={chatEndRef} />
-        </div>
-
-        {/* INPUT FOOTER */}
-        <form className="chat-footer" onSubmit={handleSendMessage}>
-          <input 
-            type="text"
-            placeholder="Type your message..." 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={isTyping}
-          />
-          <button type="submit" disabled={!input.trim() || isTyping}>
-            <Send size={18} />
-          </button>
-        </form>
+      <div className="chatbot-input">
+        <input 
+          type="text" 
+          placeholder="Type a message..." 
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+        />
+        <button onClick={handleSend} disabled={isLoading}>
+          <Send size={18} />
+        </button>
       </div>
     </div>
   );
